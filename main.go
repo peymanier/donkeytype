@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 func main() {
@@ -17,50 +17,50 @@ func main() {
 	}
 }
 
+var correctStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("10"))
+var incorrectStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("9"))
+var neutralStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
+
 type errMsg error
 
 type model struct {
-	textarea textarea.Model
-	err      error
+	wantedText string
+	gottenText string
+	err        error
+	cursor     int
 }
 
 func initialModel() model {
-	pattern := strings.Repeat("some very long text ", 20)
-
-	ta := textarea.New()
-	ta.ShowLineNumbers = false
-	ta.SetValue(pattern)
-	ta.CursorStart()
-	ta.Focus()
-
 	return model{
-		textarea: ta,
-		err:      nil,
+		wantedText: strings.Repeat("some very long text ", 20),
+		gottenText: "",
+		err:        nil,
+		cursor:     0,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return textarea.Blink
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmds []tea.Cmd
-	var cmd tea.Cmd
-
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyEsc:
-			if m.textarea.Focused() {
-				m.textarea.Blur()
-			}
+			return m, nil
 		case tea.KeyCtrlC:
 			return m, tea.Quit
+		case tea.KeyBackspace:
+			m.gottenText = removeLastRune(m.gottenText)
 		default:
-			if !m.textarea.Focused() {
-				cmd = m.textarea.Focus()
-				cmds = append(cmds, cmd)
+			if len(m.gottenText) >= len(m.wantedText) {
+				return m, nil
 			}
+
+			// TODO: sanitize the result of msg.String() from things like ctrl+a
+			m.gottenText += msg.String()
+			m.cursor++
 		}
 
 	case errMsg:
@@ -68,16 +68,30 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
-	m.textarea, cmd = m.textarea.Update(msg)
-	cmds = append(cmds, cmd)
-
-	return m, tea.Batch(cmds...)
+	return m, nil
 }
 
 func (m model) View() string {
+	var b strings.Builder
+
+	for i, c := range m.wantedText {
+		var styledChar string
+
+		if i >= len(m.gottenText) {
+			styledChar = neutralStyle.Render(string(c))
+		} else {
+			if byte(c) == m.gottenText[i] {
+				styledChar = correctStyle.Render(string(c))
+			} else {
+				styledChar = incorrectStyle.Render(string(c))
+			}
+		}
+		b.WriteString(styledChar)
+	}
+
 	return fmt.Sprintf(
 		"I'm the header for this app\n\n%s\n\n%s",
-		m.textarea.View(),
+		b.String(),
 		"Press ctrl+c to quit",
 	)
 }
