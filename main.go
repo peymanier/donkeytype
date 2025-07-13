@@ -35,8 +35,7 @@ func initialModel() model {
 }
 
 func (m model) Init() tea.Cmd {
-	// return textarea.Blink
-	return nil
+	return textarea.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
