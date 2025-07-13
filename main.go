@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -15,34 +16,64 @@ func main() {
 	}
 }
 
+type errMsg error
+
 type model struct {
-	text string
+	textarea textarea.Model
+	err      error
 }
 
 func initialModel() model {
+	ta := textarea.New()
+	ta.Placeholder = "once upon a time..."
+	ta.Focus()
+
 	return model{
-		text: "this is going to be a very long text",
+		textarea: ta,
+		err:      nil,
 	}
 }
 
 func (m model) Init() tea.Cmd {
+	// return textarea.Blink
 	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q":
+		switch msg.Type {
+		case tea.KeyEsc:
+			if m.textarea.Focused() {
+				m.textarea.Blur()
+			}
+		case tea.KeyCtrlC:
 			return m, tea.Quit
+		default:
+			if !m.textarea.Focused() {
+				cmd = m.textarea.Focus()
+				cmds = append(cmds, cmd)
+			}
 		}
 
+	case errMsg:
+		m.err = msg
 		return m, nil
 	}
 
-	return m, nil
+	m.textarea, cmd = m.textarea.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() string {
-	return m.text
+	return fmt.Sprintf(
+		"I'm the header for this app\n\n%s\n\n%s",
+		m.textarea.View(),
+		"Press ctrl+c to quit",
+	)
 }
