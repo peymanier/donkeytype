@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,8 +25,12 @@ type model struct {
 }
 
 func initialModel() model {
+	pattern := strings.Repeat("some very long text ", 20)
+
 	ta := textarea.New()
-	ta.Placeholder = "once upon a time..."
+	ta.ShowLineNumbers = false
+	ta.SetValue(pattern)
+	ta.CursorStart()
 	ta.Focus()
 
 	return model{
