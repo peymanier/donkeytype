@@ -23,17 +23,27 @@ var neutralStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
 
 type errMsg error
 
+type appState int
+
+const (
+	startState = iota
+	typeState
+	finishState
+)
+
 type model struct {
 	wantedText string
 	gottenText string
+	appState   appState
 	err        error
 	cursor     int
 }
 
 func initialModel() model {
 	return model{
-		wantedText: strings.Repeat("some very long text ", 20),
+		wantedText: randomPassage(),
 		gottenText: "",
+		appState:   startState,
 		err:        nil,
 		cursor:     0,
 	}
@@ -53,6 +63,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case tea.KeyBackspace:
 			m.gottenText = removeLastRune(m.gottenText)
+		case tea.KeyEnter:
+			if m.appState == finishState {
+				return initialModel(), nil
+			}
 		default:
 			if len(m.gottenText) >= len(m.wantedText) {
 				return m, nil
@@ -61,6 +75,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// TODO: sanitize the result of msg.String() from things like ctrl+a
 			m.gottenText += msg.String()
 			m.cursor++
+			m.updateAppState()
 		}
 
 	case errMsg:
@@ -94,4 +109,12 @@ func (m model) View() string {
 		b.String(),
 		"Press ctrl+c to quit",
 	)
+}
+
+func (m *model) updateAppState() {
+	if len(m.gottenText) > 0 && len(m.gottenText) < len(m.wantedText) {
+		m.appState = typeState
+	} else if len(m.gottenText) >= len(m.wantedText) {
+		m.appState = finishState
+	}
 }
