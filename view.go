@@ -24,9 +24,49 @@ func (m model) View() string {
 	}
 
 	return fmt.Sprintf(
-		"I'm the header for this app\n\n%s\n\n%s\n\n%s",
-		fmt.Sprintf("wpm: %d\n", m.calculateWPM()),
-		b.String(),
-		"Press ctrl+c to quit",
+		"%s\n\n%s\n\n%s\n",
+		m.viewHeader(),
+		m.viewBody(),
+		m.viewFooter(),
 	)
+}
+
+func (m model) viewHeader() string {
+	return fmt.Sprintf(
+		"%s\t\t%s",
+		fmt.Sprintf("time: %s", m.timer.View()),
+		fmt.Sprintf("wpm: %d", m.calculateWPM()),
+	)
+}
+
+func (m model) viewBody() string {
+	if m.timer.Timedout() {
+		return ""
+	}
+	return m.getText()
+}
+
+func (m model) viewFooter() string {
+	return "Press ctrl+c to quit"
+}
+
+func (m model) getText() string {
+	var b strings.Builder
+
+	for i, c := range m.wantedText {
+		var styledChar string
+
+		if i >= len(m.gottenText) {
+			styledChar = neutralStyle.Render(string(c))
+		} else {
+			if byte(c) == m.gottenText[i] {
+				styledChar = correctStyle.Render(string(c))
+			} else {
+				styledChar = incorrectStyle.Render(string(c))
+			}
+		}
+		b.WriteString(styledChar)
+	}
+
+	return b.String()
 }
