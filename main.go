@@ -64,7 +64,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyBackspace:
 			m.gottenText = removeLastRune(m.gottenText)
 		case tea.KeyEnter:
-			if m.appState == finishState {
+			if m.appState == finishState || m.appState == startState {
 				return initialModel(), nil
 			}
 		default:
