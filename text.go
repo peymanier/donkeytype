@@ -13,7 +13,7 @@ var passages = []string{
 	"Crazy Fredrick bought many very exquisite opal jewels.",
 
 	"Life is really simple, but we insist on making it complicated.",
-	"It always seems impossible until it’s done.",
+	"It always seems impossible until it's done.",
 	"Success is not final, failure is not fatal: it is the courage to continue that counts.",
 	"Do not dwell in the past, do not dream of the future, concentrate the mind on the present moment.",
 	"Knowing yourself is the beginning of all wisdom.",
@@ -21,10 +21,10 @@ var passages = []string{
 	"All we have to decide is what to do with the time that is given us.",
 	"Fear is the mind-killer. Fear is the little-death that brings total obliteration.",
 
-	"Typing is not about speed; it’s about rhythm, focus, and precision.",
-	"Don’t look at the keyboard — let your fingers learn the way.",
+	"Typing is not about speed; it's about rhythm, focus, and precision.",
+	"Don't look at the keyboard — let your fingers learn the way.",
 	"Terminal applications can be beautiful, interactive, and powerful.",
-	"Charm’s Bubble Tea framework brings functional UI architecture to the terminal.",
+	"Charm's Bubble Tea framework brings functional UI architecture to the terminal.",
 	"In Go, composition is preferred over inheritance.",
 	"A good developer types with clarity and intent, not haste.",
 
