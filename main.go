@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -35,6 +36,8 @@ type model struct {
 	wantedText string
 	gottenText string
 	appState   appState
+	startTime  time.Time
+	endTime    *time.Time
 	err        error
 	cursor     int
 }
@@ -44,6 +47,8 @@ func initialModel() model {
 		wantedText: randomPassage(),
 		gottenText: "",
 		appState:   startState,
+		startTime:  time.Now(),
+		endTime:    nil,
 		err:        nil,
 		cursor:     0,
 	}
@@ -64,7 +69,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyBackspace:
 			m.gottenText = removeLastRune(m.gottenText)
 		case tea.KeyEnter:
-			if m.appState == finishState || m.appState == startState {
+			if m.appState == startState || m.appState == finishState {
 				return initialModel(), nil
 			}
 		default:
@@ -105,7 +110,8 @@ func (m model) View() string {
 	}
 
 	return fmt.Sprintf(
-		"I'm the header for this app\n\n%s\n\n%s",
+		"I'm the header for this app\n\n%s\n\n%s\n\n%s",
+		fmt.Sprintf("wpm: %d\n", m.calculateWPM()),
 		b.String(),
 		"Press ctrl+c to quit",
 	)
@@ -116,5 +122,36 @@ func (m *model) updateAppState() {
 		m.appState = typeState
 	} else if len(m.gottenText) >= len(m.wantedText) {
 		m.appState = finishState
+		// TODO: Add endTime
 	}
+}
+
+func (m model) calculateWPM() int {
+	var endTime time.Time
+	if m.endTime != nil {
+		endTime = *m.endTime
+	} else {
+		endTime = time.Now()
+	}
+
+	duration := endTime.Sub(m.startTime).Minutes()
+	correctCount := m.calculateCorrectCount()
+	wpm := float64(correctCount) / 5.0 / duration
+	return int(wpm)
+}
+
+func (m model) calculateCorrectCount() int {
+	runesWant := []rune(m.wantedText)
+	runesGot := []rune(m.gottenText)
+
+	minLen := min(len(runesWant), len(runesGot))
+
+	var correct int
+	for i := range minLen {
+		if runesGot[i] == runesWant[i] {
+			correct++
+		}
+	}
+
+	return correct
 }
