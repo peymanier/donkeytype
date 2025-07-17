@@ -42,15 +42,14 @@ var passages = []string{
 	"Practice daily, and soon your fingers will fly.",
 }
 
-func randomPassage() string {
-	return passages[rand.Intn(len(passages))]
+func randomPassage() []rune {
+	return []rune(passages[rand.Intn(len(passages))])
 }
 
-func removeLastRune(s string) string {
-	r := []rune(s)
+func removeLastRune(r []rune) []rune {
 	if len(r) == 0 {
-		return s
+		return r
 	}
 
-	return string(r[:len(r)-1])
+	return r[:len(r)-1]
 }

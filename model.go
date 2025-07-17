@@ -27,8 +27,8 @@ const (
 type errMsg error
 
 type model struct {
-	wantedText string
-	gottenText string
+	wantedText []rune
+	gottenText []rune
 	appState   appState
 	timerState timerState
 	startTime  time.Time
@@ -43,7 +43,7 @@ func initialModel() model {
 
 	return model{
 		wantedText: randomPassage(),
-		gottenText: "",
+		gottenText: []rune{},
 		appState:   appStartState,
 		timerState: timerStopState,
 		startTime:  time.Now(),
@@ -90,7 +90,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-			m.gottenText += msg.String()
+			m.gottenText = append(m.gottenText, msg.Runes...)
 			m.cursor++
 			m.updateAppState()
 
