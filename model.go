@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/charmbracelet/bubbles/timer"
@@ -10,9 +11,17 @@ import (
 type appState int
 
 const (
-	startState = iota
-	typeState
-	finishState
+	appStartState = iota
+	appTypeState
+	appFinishState
+)
+
+type timerState int
+
+const (
+	timerStopState = iota
+	timerRunState
+	timerTimeoutState
 )
 
 type errMsg error
@@ -21,6 +30,7 @@ type model struct {
 	wantedText string
 	gottenText string
 	appState   appState
+	timerState timerState
 	startTime  time.Time
 	endTime    *time.Time
 	timer      timer.Model
@@ -29,28 +39,41 @@ type model struct {
 }
 
 func initialModel() model {
+	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
+
 	return model{
 		wantedText: randomPassage(),
 		gottenText: "",
-		appState:   startState,
+		appState:   appStartState,
+		timerState: timerStopState,
 		startTime:  time.Now(),
 		endTime:    nil,
-		timer:      timer.NewWithInterval(10*time.Second, 100*time.Millisecond),
+		timer:      timer,
 		err:        nil,
 		cursor:     0,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return m.timer.Init()
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
 	case timer.TickMsg:
-		var cmd tea.Cmd
 		m.timer, cmd = m.timer.Update(msg)
 		return m, cmd
+
+	case timer.StartStopMsg:
+		m.timer, cmd = m.timer.Update(msg)
+		return m, cmd
+
+	case timer.TimeoutMsg:
+		m.updateAppState()
+		return m, nil
 
 	case tea.KeyMsg:
 		switch msg.Type {
@@ -62,30 +85,47 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.gottenText = removeLastRune(m.gottenText)
 		case tea.KeyEnter:
 			return initialModel(), nil
-		default:
+		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {
 				return m, nil
 			}
 
-			// TODO: sanitize the result of msg.String() from things like ctrl+a
 			m.gottenText += msg.String()
 			m.cursor++
 			m.updateAppState()
+
+			if m.appState == appTypeState && m.timerState == timerStopState {
+				cmd = m.timer.Init()
+				cmds = append(cmds, cmd)
+				m.timerState = timerRunState
+			}
+		default:
+			log.Printf("key unhandled msg.Type: %d, msg.String(): %s", msg.Type, msg.String())
 		}
 
 	case errMsg:
 		m.err = msg
 		return m, nil
+	default:
+		log.Printf("msg unhandled msg: %v", msg)
 	}
 
-	return m, nil
+	return m, tea.Batch(cmds...)
 }
 
 func (m *model) updateAppState() {
-	if len(m.gottenText) > 0 && len(m.gottenText) < len(m.wantedText) {
-		m.appState = typeState
-	} else if len(m.gottenText) >= len(m.wantedText) {
-		m.appState = finishState
-		// TODO: Add endTime
+	textFinished := len(m.gottenText) >= len(m.wantedText)
+	if m.appState != appFinishState && (textFinished || m.timer.Timedout()) {
+		m.appState = appFinishState
+		m.timerState = timerTimeoutState
+
+		endTime := time.Now()
+		m.endTime = &endTime
+		return
+	}
+
+	textStarted := len(m.gottenText) > 0
+	if m.appState == appStartState && textStarted {
+		m.appState = appTypeState
 	}
 }
