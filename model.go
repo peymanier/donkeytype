@@ -33,8 +33,14 @@ type timeData struct {
 	timerState timerState
 }
 
+type stats struct {
+	wpm      int
+	accuracy int
+}
+
 type model struct {
 	timeData
+	stats
 	wantedText []rune
 	gottenText []rune
 	appState   appState
@@ -44,6 +50,7 @@ type model struct {
 
 func initialModel() model {
 	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
+	wantedText := randomPassage()
 
 	return model{
 		timeData: timeData{
@@ -52,8 +59,12 @@ func initialModel() model {
 			timer:      timer,
 			timerState: timerStopState,
 		},
-		wantedText: randomPassage(),
-		gottenText: []rune{},
+		stats: stats{
+			wpm:      0,
+			accuracy: 0,
+		},
+		wantedText: wantedText,
+		gottenText: make([]rune, 0, len(wantedText)),
 		appState:   appStartState,
 		err:        nil,
 		cursor:     0,
@@ -70,6 +81,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case timer.TickMsg:
+		m.updateStats()
 		m.timer, cmd = m.timer.Update(msg)
 		return m, cmd
 
@@ -134,4 +146,13 @@ func (m *model) updateAppState() {
 	if m.appState == appStartState && textStarted {
 		m.appState = appTypeState
 	}
+}
+
+func (m *model) updateStats() {
+	if m.appState != appTypeState {
+		return
+	}
+
+	m.wpm = m.calculateWPM()
+	m.accuracy = m.calculateAccuracy()
 }

@@ -16,9 +16,10 @@ func (m model) View() string {
 
 func (m model) viewHeader() string {
 	return fmt.Sprintf(
-		"%s\t\t%s",
+		"%s\t\t%s\t\t%s",
 		fmt.Sprintf("time: %s", m.timer.View()),
-		fmt.Sprintf("wpm: %d", m.calculateWPM()),
+		fmt.Sprintf("wpm: %d", m.wpm),
+		fmt.Sprintf("accuracy: %d", m.accuracy),
 	)
 }
 

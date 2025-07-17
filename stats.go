@@ -16,15 +16,18 @@ func (m model) calculateWPM() int {
 	return int(wpm)
 }
 
-func (m model) calculateCorrectCount() int {
-	runesWant := []rune(m.wantedText)
-	runesGot := []rune(m.gottenText)
+func (m model) calculateAccuracy() int {
+	correctCount := m.calculateCorrectCount()
+	accuracy := float64(correctCount) / float64(len(m.gottenText)) * 100
+	return int(accuracy)
+}
 
-	minLen := min(len(runesWant), len(runesGot))
+func (m model) calculateCorrectCount() int {
+	minLen := min(len(m.wantedText), len(m.gottenText))
 
 	var correct int
 	for i := range minLen {
-		if runesGot[i] == runesWant[i] {
+		if m.gottenText[i] == m.wantedText[i] {
 			correct++
 		}
 	}
