@@ -26,14 +26,18 @@ const (
 
 type errMsg error
 
-type model struct {
-	wantedText []rune
-	gottenText []rune
-	appState   appState
-	timerState timerState
+type timeData struct {
 	startTime  time.Time
 	endTime    *time.Time
 	timer      timer.Model
+	timerState timerState
+}
+
+type model struct {
+	timeData
+	wantedText []rune
+	gottenText []rune
+	appState   appState
 	err        error
 	cursor     int
 }
@@ -42,13 +46,15 @@ func initialModel() model {
 	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
 
 	return model{
+		timeData: timeData{
+			startTime:  time.Now(),
+			endTime:    nil,
+			timer:      timer,
+			timerState: timerStopState,
+		},
 		wantedText: randomPassage(),
 		gottenText: []rune{},
 		appState:   appStartState,
-		timerState: timerStopState,
-		startTime:  time.Now(),
-		endTime:    nil,
-		timer:      timer,
 		err:        nil,
 		cursor:     0,
 	}
