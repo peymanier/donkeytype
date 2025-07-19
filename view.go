@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"strings"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 func (m model) View() string {
-	return fmt.Sprintf(
-		"%s\n\n%s\n\n%s\n",
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
 		m.viewHeader(),
 		m.viewBody(),
 		m.viewFooter(),
@@ -15,19 +17,17 @@ func (m model) View() string {
 }
 
 func (m model) viewHeader() string {
-	return fmt.Sprintf(
-		"%s\t\t%s\t\t%s",
-		fmt.Sprintf("time: %s", m.timer.View()),
-		fmt.Sprintf("wpm: %d", m.wpm),
-		fmt.Sprintf("accuracy: %d", m.accuracy),
+	statStyle := lipgloss.NewStyle().Padding(0, 4)
+
+	return lipgloss.JoinHorizontal(
+		lipgloss.Left,
+		statStyle.Render(fmt.Sprintf("time: %5s", m.timer.View())),
+		statStyle.Render(fmt.Sprintf("wpm: %3d", m.wpm)),
+		statStyle.Render(fmt.Sprintf("accuracy: %d%%", m.accuracy)),
 	)
 }
 
 func (m model) viewBody() string {
-	if m.timer.Timedout() {
-		return ""
-	}
-
 	return m.getText()
 }
 
