@@ -27,6 +27,7 @@ func (m model) viewBody() string {
 	if m.timer.Timedout() {
 		return ""
 	}
+
 	return m.getText()
 }
 
@@ -40,7 +41,10 @@ func (m model) getText() string {
 	for i, c := range m.wantedText {
 		var styledChar string
 
-		if i >= len(m.gottenText) {
+		if i == m.position {
+			m.cursor.SetChar(string(c))
+			styledChar = m.cursor.View()
+		} else if i >= len(m.gottenText) {
 			styledChar = neutralStyle.Render(string(c))
 		} else {
 			if c == m.gottenText[i] {

@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -33,19 +34,24 @@ type timeData struct {
 	timerState timerState
 }
 
+type cursorData struct {
+	cursor   cursor.Model
+	position int
+}
+
 type stats struct {
 	wpm      int
 	accuracy int
 }
 
 type model struct {
-	timeData
-	stats
 	wantedText []rune
 	gottenText []rune
 	appState   appState
 	err        error
-	cursor     int
+	timeData
+	cursorData
+	stats
 }
 
 func initialModel() model {
@@ -53,21 +59,24 @@ func initialModel() model {
 	wantedText := randomPassage()
 
 	return model{
+		wantedText: wantedText,
+		gottenText: make([]rune, 0, len(wantedText)),
+		appState:   appStartState,
+		err:        nil,
 		timeData: timeData{
 			startTime:  time.Now(),
 			endTime:    nil,
 			timer:      timer,
 			timerState: timerStopState,
 		},
+		cursorData: cursorData{
+			cursor:   cursor.Model{},
+			position: 0,
+		},
 		stats: stats{
 			wpm:      0,
 			accuracy: 0,
 		},
-		wantedText: wantedText,
-		gottenText: make([]rune, 0, len(wantedText)),
-		appState:   appStartState,
-		err:        nil,
-		cursor:     0,
 	}
 }
 
@@ -97,19 +106,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyEsc:
 			return m, nil
+
 		case tea.KeyCtrlC:
 			return m, tea.Quit
+
 		case tea.KeyBackspace:
 			m.gottenText = removeLastRune(m.gottenText)
+			m.position--
+
 		case tea.KeyEnter:
 			return initialModel(), nil
+
 		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {
 				return m, nil
 			}
 
 			m.gottenText = append(m.gottenText, msg.Runes...)
-			m.cursor++
+			m.position++
 			m.updateAppState()
 
 			if m.appState == appTypeState && m.timerState == timerStopState {
@@ -127,6 +141,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	default:
 		log.Printf("msg unhandled msg: %v", msg)
 	}
+
+	m.cursor, cmd = m.cursor.Update(msg)
+	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
