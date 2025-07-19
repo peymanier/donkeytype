@@ -38,6 +38,10 @@ func (m model) viewFooter() string {
 func (m model) getText() string {
 	var b strings.Builder
 
+	normalRuneStyle := newRuneStyle(m.styles.runeNormalColor)
+	correctRuneStyle := newRuneStyle(m.styles.runeCorrectColor)
+	wrongRuneStyle := newRuneStyle(m.styles.runeWrongColor)
+
 	for i, c := range m.wantedText {
 		var styledChar string
 
@@ -45,12 +49,12 @@ func (m model) getText() string {
 			m.cursor.SetChar(string(c))
 			styledChar = m.cursor.View()
 		} else if i >= len(m.gottenText) {
-			styledChar = neutralStyle.Render(string(c))
+			styledChar = normalRuneStyle.Render(string(c))
 		} else {
 			if c == m.gottenText[i] {
-				styledChar = correctStyle.Render(string(c))
+				styledChar = correctRuneStyle.Render(string(c))
 			} else {
-				styledChar = incorrectStyle.Render(string(c))
+				styledChar = wrongRuneStyle.Render(string(c))
 			}
 		}
 		b.WriteString(styledChar)

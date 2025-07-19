@@ -49,6 +49,9 @@ type model struct {
 	gottenText []rune
 	appState   appState
 	err        error
+	width      int
+	height     int
+	styles     *styles
 	timeData
 	cursorData
 	stats
@@ -67,6 +70,7 @@ func initialModel() model {
 		gottenText: make([]rune, 0, len(wantedText)),
 		appState:   appStartState,
 		err:        nil,
+		styles:     defaultStyles(),
 		timeData: timeData{
 			startTime:  time.Now(),
 			endTime:    nil,
@@ -93,6 +97,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+
 	case timer.TickMsg:
 		m.updateStats()
 		m.timer, cmd = m.timer.Update(msg)
