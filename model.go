@@ -56,6 +56,10 @@ type model struct {
 
 func initialModel() model {
 	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
+
+	cursor := cursor.New()
+	cursor.Focus()
+
 	wantedText := randomPassage()
 
 	return model{
@@ -70,7 +74,7 @@ func initialModel() model {
 			timerState: timerStopState,
 		},
 		cursorData: cursorData{
-			cursor:   cursor.Model{},
+			cursor:   cursor,
 			position: 0,
 		},
 		stats: stats{
@@ -81,7 +85,7 @@ func initialModel() model {
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	return cursor.Blink
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -162,6 +166,7 @@ func (m *model) updateAppState() {
 	textStarted := len(m.gottenText) > 0
 	if m.appState == appStartState && textStarted {
 		m.appState = appTypeState
+		m.cursor.SetMode(cursor.CursorStatic)
 	}
 }
 
