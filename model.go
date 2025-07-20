@@ -57,7 +57,12 @@ type model struct {
 	stats
 }
 
-func initialModel() model {
+type initialOpts struct {
+	width  int
+	height int
+}
+
+func initialModel(opts initialOpts) model {
 	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
 
 	cursor := cursor.New()
@@ -70,6 +75,8 @@ func initialModel() model {
 		gottenText: make([]rune, 0, len(wantedText)),
 		appState:   appStartState,
 		err:        nil,
+		width:      opts.width,
+		height:     opts.height,
 		styles:     defaultStyles(),
 		timeData: timeData{
 			startTime:  time.Now(),
@@ -127,7 +134,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.position--
 
 		case tea.KeyEnter:
-			return initialModel(), nil
+			return initialModel(initialOpts{width: m.width, height: m.height}), nil
 
 		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {

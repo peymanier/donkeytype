@@ -8,11 +8,17 @@ import (
 )
 
 func (m model) View() string {
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		m.viewHeader(),
-		m.viewBody(),
-		m.viewFooter(),
+	return lipgloss.Place(
+		m.width,
+		m.height,
+		lipgloss.Center,
+		lipgloss.Center,
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			m.viewHeader(),
+			m.viewBody(),
+			m.viewFooter(),
+		),
 	)
 }
 
@@ -23,7 +29,7 @@ func (m model) viewHeader() string {
 		lipgloss.Left,
 		statStyle.Render(fmt.Sprintf("time: %5s", m.timer.View())),
 		statStyle.Render(fmt.Sprintf("wpm: %3d", m.wpm)),
-		statStyle.Render(fmt.Sprintf("accuracy: %d%%", m.accuracy)),
+		statStyle.Render(fmt.Sprintf("accuracy: %3d%%", m.accuracy)),
 	)
 }
 
