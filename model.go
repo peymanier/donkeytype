@@ -157,6 +157,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case errMsg:
 		m.err = msg
 		return m, nil
+
 	default:
 		log.Printf("msg unhandled msg: %v", msg)
 	}

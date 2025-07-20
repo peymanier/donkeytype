@@ -23,13 +23,16 @@ func (m model) View() string {
 }
 
 func (m model) viewHeader() string {
-	statStyle := lipgloss.NewStyle().Padding(0, 4)
+	var headerStyle = newHeaderStyle(m.styles.borderColor)
+	var statStyle = newStatStyle()
 
-	return lipgloss.JoinHorizontal(
-		lipgloss.Left,
-		statStyle.Render(fmt.Sprintf("time: %5s", m.timer.View())),
-		statStyle.Render(fmt.Sprintf("wpm: %3d", m.wpm)),
-		statStyle.Render(fmt.Sprintf("accuracy: %3d%%", m.accuracy)),
+	return headerStyle.Render(
+		lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			statStyle.Render(fmt.Sprintf("time: %5s", m.timer.View())),
+			statStyle.Render(fmt.Sprintf("wpm: %3d", m.wpm)),
+			statStyle.Render(fmt.Sprintf("accuracy: %3d%%", m.accuracy)),
+		),
 	)
 }
 
