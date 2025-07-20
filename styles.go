@@ -18,27 +18,35 @@ func defaultStyles() *styles {
 	}
 }
 
-func newRuneStyle(color lipgloss.Color) lipgloss.Style {
+func (m model) newRuneStyle(color lipgloss.Color) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(color)
 }
 
-func newHeaderStyle(color lipgloss.Color) lipgloss.Style {
+func (m model) newHeaderStyle() lipgloss.Style {
+	width := m.width * 4 / 5
+
 	return lipgloss.NewStyle().
+		Width(width).
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(color).
+		BorderForeground(m.styles.borderColor).
 		MarginBottom(4)
 }
 
-func newStatStyle() lipgloss.Style {
+func (m model) newStatStyle() lipgloss.Style {
+	width := m.width * 4 / 5
+
 	return lipgloss.NewStyle().
+		Width(width * 1 / 3).
 		PaddingLeft(4).
 		PaddingRight(4)
 }
 
-func newBodyStyle(color lipgloss.Color) lipgloss.Style {
+func (m model) newBodyStyle() lipgloss.Style {
+	width := m.width * 4 / 5
+
 	return lipgloss.NewStyle().
-		Width(100).
+		Width(width).
 		Border(lipgloss.NormalBorder()).
-		BorderForeground(color).
+		BorderForeground(m.styles.borderColor).
 		MarginBottom(4)
 }

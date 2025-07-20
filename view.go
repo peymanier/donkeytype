@@ -23,12 +23,12 @@ func (m model) View() string {
 }
 
 func (m model) viewHeader() string {
-	var headerStyle = newHeaderStyle(m.styles.borderColor)
-	var statStyle = newStatStyle()
+	var headerStyle = m.newHeaderStyle()
+	var statStyle = m.newStatStyle()
 
 	return headerStyle.Render(
 		lipgloss.JoinHorizontal(
-			lipgloss.Left,
+			lipgloss.Center,
 			statStyle.Render(fmt.Sprintf("time: %5s", m.timer.View())),
 			statStyle.Render(fmt.Sprintf("wpm: %3d", m.wpm)),
 			statStyle.Render(fmt.Sprintf("accuracy: %3d%%", m.accuracy)),
@@ -37,7 +37,7 @@ func (m model) viewHeader() string {
 }
 
 func (m model) viewBody() string {
-	bodyStyle := newBodyStyle(m.styles.borderColor)
+	bodyStyle := m.newBodyStyle()
 	return bodyStyle.Render(m.getText())
 }
 
@@ -48,9 +48,9 @@ func (m model) viewFooter() string {
 func (m model) getText() string {
 	var b strings.Builder
 
-	normalRuneStyle := newRuneStyle(m.styles.runeNormalColor)
-	correctRuneStyle := newRuneStyle(m.styles.runeCorrectColor)
-	wrongRuneStyle := newRuneStyle(m.styles.runeWrongColor)
+	normalRuneStyle := m.newRuneStyle(m.styles.runeNormalColor)
+	correctRuneStyle := m.newRuneStyle(m.styles.runeCorrectColor)
+	wrongRuneStyle := m.newRuneStyle(m.styles.runeWrongColor)
 
 	for i, c := range m.wantedText {
 		var styledChar string
