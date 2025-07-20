@@ -25,9 +25,20 @@ func newRuneStyle(color lipgloss.Color) lipgloss.Style {
 func newHeaderStyle(color lipgloss.Color) lipgloss.Style {
 	return lipgloss.NewStyle().
 		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(color)
+		BorderForeground(color).
+		MarginBottom(4)
 }
 
 func newStatStyle() lipgloss.Style {
-	return lipgloss.NewStyle().Padding(0, 4)
+	return lipgloss.NewStyle().
+		PaddingLeft(4).
+		PaddingRight(4)
+}
+
+func newBodyStyle(color lipgloss.Color) lipgloss.Style {
+	return lipgloss.NewStyle().
+		Width(100).
+		Border(lipgloss.NormalBorder()).
+		BorderForeground(color).
+		MarginBottom(4)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"slices"
 	"time"
 
 	"github.com/charmbracelet/bubbles/cursor"
@@ -68,7 +69,7 @@ func initialModel(opts initialOpts) model {
 	cursor := cursor.New()
 	cursor.Focus()
 
-	wantedText := randomPassage()
+	wantedText := slices.Repeat(randomPassage(), 10)
 
 	return model{
 		wantedText: wantedText,

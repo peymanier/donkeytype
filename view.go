@@ -37,7 +37,8 @@ func (m model) viewHeader() string {
 }
 
 func (m model) viewBody() string {
-	return m.getText()
+	bodyStyle := newBodyStyle(m.styles.borderColor)
+	return bodyStyle.Render(m.getText())
 }
 
 func (m model) viewFooter() string {
