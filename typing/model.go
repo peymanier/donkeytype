@@ -1,4 +1,4 @@
-package main
+package typing
 
 import (
 	"fmt"
@@ -24,9 +24,9 @@ const (
 type timerState int
 
 const (
-	timerStopState = iota
-	timerRunState
-	timerTimeoutState
+	timerStop = iota
+	timerRun
+	timerTimeout
 )
 
 type errMsg error
@@ -48,7 +48,7 @@ type stats struct {
 	accuracy int
 }
 
-type typingModel struct {
+type Model struct {
 	wantedText  []rune
 	gottenText  []rune
 	typingState typingState
@@ -66,7 +66,11 @@ type initialOpts struct {
 	height int
 }
 
-func initialTypingModel(opts initialOpts) typingModel {
+func New(opts *initialOpts) Model {
+	if opts == nil {
+		opts = &initialOpts{}
+	}
+
 	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
 
 	cursor := cursor.New()
@@ -74,7 +78,7 @@ func initialTypingModel(opts initialOpts) typingModel {
 
 	wantedText := slices.Repeat(randomPassage(), 10)
 
-	return typingModel{
+	return Model{
 		wantedText:  wantedText,
 		gottenText:  make([]rune, 0, len(wantedText)),
 		typingState: typingPending,
@@ -86,7 +90,7 @@ func initialTypingModel(opts initialOpts) typingModel {
 			startTime:  time.Now(),
 			endTime:    nil,
 			timer:      timer,
-			timerState: timerStopState,
+			timerState: timerStop,
 		},
 		cursorData: cursorData{
 			cursor:   cursor,
@@ -99,11 +103,11 @@ func initialTypingModel(opts initialOpts) typingModel {
 	}
 }
 
-func (m typingModel) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return cursor.Blink
 }
 
-func (m typingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
@@ -138,7 +142,7 @@ func (m typingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.position--
 
 		case tea.KeyEnter:
-			return initialTypingModel(initialOpts{width: m.width, height: m.height}), nil
+			return New(&initialOpts{width: m.width, height: m.height}), nil
 
 		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {
@@ -149,10 +153,10 @@ func (m typingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.position++
 			m.updateTypingState()
 
-			if m.typingState == typingInProgress && m.timerState == timerStopState {
+			if m.typingState == typingInProgress && m.timerState == timerStop {
 				cmd = m.timer.Init()
 				cmds = append(cmds, cmd)
-				m.timerState = timerRunState
+				m.timerState = timerRun
 			}
 		default:
 			log.Printf("key unhandled msg.Type: %d, msg.String(): %s", msg.Type, msg.String())
@@ -172,7 +176,7 @@ func (m typingModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m typingModel) View() string {
+func (m Model) View() string {
 	return lipgloss.Place(
 		m.width,
 		m.height,
@@ -187,7 +191,7 @@ func (m typingModel) View() string {
 	)
 }
 
-func (m typingModel) viewHeader() string {
+func (m Model) viewHeader() string {
 	var headerStyle = m.newHeaderStyle()
 	var statStyle = m.newStatStyle()
 
@@ -201,16 +205,16 @@ func (m typingModel) viewHeader() string {
 	)
 }
 
-func (m typingModel) viewBody() string {
+func (m Model) viewBody() string {
 	bodyStyle := m.newBodyStyle()
 	return bodyStyle.Render(m.getText())
 }
 
-func (m typingModel) viewFooter() string {
+func (m Model) viewFooter() string {
 	return "Press ctrl+c to quit"
 }
 
-func (m typingModel) getText() string {
+func (m Model) getText() string {
 	var b strings.Builder
 
 	normalRuneStyle := m.newRuneStyle(m.styles.runeNormalColor)
@@ -238,11 +242,11 @@ func (m typingModel) getText() string {
 	return b.String()
 }
 
-func (m *typingModel) updateTypingState() {
+func (m *Model) updateTypingState() {
 	textFinished := len(m.gottenText) >= len(m.wantedText)
 	if m.typingState != typingFinish && (textFinished || m.timer.Timedout()) {
 		m.typingState = typingFinish
-		m.timerState = timerTimeoutState
+		m.timerState = timerTimeout
 
 		endTime := time.Now()
 		m.endTime = &endTime
@@ -256,7 +260,7 @@ func (m *typingModel) updateTypingState() {
 	}
 }
 
-func (m *typingModel) updateStats() {
+func (m *Model) updateStats() {
 	if m.typingState != typingInProgress {
 		return
 	}

@@ -1,8 +1,8 @@
-package main
+package typing
 
 import "time"
 
-func (m typingModel) calculateWPM() int {
+func (m Model) calculateWPM() int {
 	var endTime time.Time
 	if m.endTime != nil {
 		endTime = *m.endTime
@@ -16,13 +16,13 @@ func (m typingModel) calculateWPM() int {
 	return int(wpm)
 }
 
-func (m typingModel) calculateAccuracy() int {
+func (m Model) calculateAccuracy() int {
 	correctCount := m.calculateCorrectCount()
 	accuracy := float64(correctCount) / float64(len(m.gottenText)) * 100
 	return int(accuracy)
 }
 
-func (m typingModel) calculateCorrectCount() int {
+func (m Model) calculateCorrectCount() int {
 	minLen := min(len(m.wantedText), len(m.gottenText))
 
 	var correct int

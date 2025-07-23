@@ -1,4 +1,4 @@
-package main
+package typing
 
 import "github.com/charmbracelet/lipgloss"
 
@@ -18,11 +18,11 @@ func defaultStyles() *styles {
 	}
 }
 
-func (m typingModel) newRuneStyle(color lipgloss.Color) lipgloss.Style {
+func (m Model) newRuneStyle(color lipgloss.Color) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(color)
 }
 
-func (m typingModel) newHeaderStyle() lipgloss.Style {
+func (m Model) newHeaderStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().
@@ -32,7 +32,7 @@ func (m typingModel) newHeaderStyle() lipgloss.Style {
 		MarginBottom(4)
 }
 
-func (m typingModel) newStatStyle() lipgloss.Style {
+func (m Model) newStatStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().
@@ -41,7 +41,7 @@ func (m typingModel) newStatStyle() lipgloss.Style {
 		PaddingRight(4)
 }
 
-func (m typingModel) newBodyStyle() lipgloss.Style {
+func (m Model) newBodyStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().
