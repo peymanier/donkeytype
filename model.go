@@ -21,7 +21,7 @@ type model struct {
 
 func initialModel() model {
 	return model{
-		typing:  typing.New(nil),
+		typing:  typing.New(typing.Opts{}),
 		options: options.New(),
 	}
 }
