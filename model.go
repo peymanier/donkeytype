@@ -2,6 +2,7 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mierlabs/donkeytype/options"
 )
 
 type state int
@@ -14,13 +15,13 @@ const (
 type model struct {
 	state   state
 	typing  typingModel
-	options optionsModel
+	options options.Model
 }
 
 func initialModel(opts initialOpts) model {
 	return model{
 		typing:  initialTypingModel(opts),
-		options: initialOptionsModel(opts),
+		options: options.New(),
 	}
 }
 
@@ -48,7 +49,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case optionsView:
 		newOptions, newCmd := m.options.Update(msg)
-		options, ok := newOptions.(optionsModel)
+		options, ok := newOptions.(options.Model)
 		if !ok {
 			panic("could not perform type assertion on options model")
 		}
