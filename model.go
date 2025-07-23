@@ -79,11 +79,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	switch m.state {
-	case typingView:
-		return m.typing.View()
 	case optionsView:
 		return m.options.View()
+	default:
+		return m.typing.View()
 	}
-
-	return ""
 }
