@@ -1,4 +1,4 @@
-package main
+package typing
 
 import (
 	"math/rand"
