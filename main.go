@@ -11,7 +11,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer func() {
+		err = f.Close()
+		if err != nil {
+			log.Println(err)
+		}
+	}()
 
 	p := tea.NewProgram(initialModel(initialOpts{}), tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {

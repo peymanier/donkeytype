@@ -1,197 +1,73 @@
 package main
 
 import (
-	"log"
-	"slices"
-	"time"
-
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type appState int
+type state int
 
 const (
-	appStartState = iota
-	appTypeState
-	appFinishState
+	typingView = iota
+	optionsView
 )
-
-type timerState int
-
-const (
-	timerStopState = iota
-	timerRunState
-	timerTimeoutState
-)
-
-type errMsg error
-
-type timeData struct {
-	startTime  time.Time
-	endTime    *time.Time
-	timer      timer.Model
-	timerState timerState
-}
-
-type cursorData struct {
-	cursor   cursor.Model
-	position int
-}
-
-type stats struct {
-	wpm      int
-	accuracy int
-}
 
 type model struct {
-	wantedText []rune
-	gottenText []rune
-	appState   appState
-	err        error
-	width      int
-	height     int
-	styles     *styles
-	timeData
-	cursorData
-	stats
-}
-
-type initialOpts struct {
-	width  int
-	height int
+	state   state
+	typing  typingModel
+	options optionsModel
 }
 
 func initialModel(opts initialOpts) model {
-	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
-
-	cursor := cursor.New()
-	cursor.Focus()
-
-	wantedText := slices.Repeat(randomPassage(), 10)
-
 	return model{
-		wantedText: wantedText,
-		gottenText: make([]rune, 0, len(wantedText)),
-		appState:   appStartState,
-		err:        nil,
-		width:      opts.width,
-		height:     opts.height,
-		styles:     defaultStyles(),
-		timeData: timeData{
-			startTime:  time.Now(),
-			endTime:    nil,
-			timer:      timer,
-			timerState: timerStopState,
-		},
-		cursorData: cursorData{
-			cursor:   cursor,
-			position: 0,
-		},
-		stats: stats{
-			wpm:      0,
-			accuracy: 0,
-		},
+		typing:  initialTypingModel(opts),
+		options: initialOptionsModel(opts),
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return cursor.Blink
+	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
+	// TODO: Add switch for back and select msg
 
-	case timer.TickMsg:
-		m.updateStats()
-		m.timer, cmd = m.timer.Update(msg)
-		return m, cmd
-
-	case timer.StartStopMsg:
-		m.timer, cmd = m.timer.Update(msg)
-		return m, cmd
-
-	case timer.TimeoutMsg:
-		m.updateAppState()
-		return m, nil
-
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEsc:
-			return m, nil
-
-		case tea.KeyCtrlC:
-			return m, tea.Quit
-
-		case tea.KeyBackspace:
-			m.gottenText = removeLastRune(m.gottenText)
-			m.position--
-
-		case tea.KeyEnter:
-			return initialModel(initialOpts{width: m.width, height: m.height}), nil
-
-		case tea.KeyRunes, tea.KeySpace:
-			if len(m.gottenText) >= len(m.wantedText) {
-				return m, nil
-			}
-
-			m.gottenText = append(m.gottenText, msg.Runes...)
-			m.position++
-			m.updateAppState()
-
-			if m.appState == appTypeState && m.timerState == timerStopState {
-				cmd = m.timer.Init()
-				cmds = append(cmds, cmd)
-				m.timerState = timerRunState
-			}
-		default:
-			log.Printf("key unhandled msg.Type: %d, msg.String(): %s", msg.Type, msg.String())
+	switch m.state {
+	case typingView:
+		newTyping, newCmd := m.typing.Update(msg)
+		typing, ok := newTyping.(typingModel)
+		if !ok {
+			panic("could not perform type assertion on typing model")
 		}
 
-	case errMsg:
-		m.err = msg
-		return m, nil
+		m.typing = typing
+		cmd = newCmd
+		cmds = append(cmds, cmd)
 
-	default:
-		log.Printf("msg unhandled msg: %v", msg)
+	case optionsView:
+		newOptions, newCmd := m.options.Update(msg)
+		options, ok := newOptions.(optionsModel)
+		if !ok {
+			panic("could not perform type assertion on options model")
+		}
+
+		m.options = options
+		cmd = newCmd
+		cmds = append(cmds, cmd)
 	}
-
-	m.cursor, cmd = m.cursor.Update(msg)
-	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m *model) updateAppState() {
-	textFinished := len(m.gottenText) >= len(m.wantedText)
-	if m.appState != appFinishState && (textFinished || m.timer.Timedout()) {
-		m.appState = appFinishState
-		m.timerState = timerTimeoutState
-
-		endTime := time.Now()
-		m.endTime = &endTime
-		return
+func (m model) View() string {
+	switch m.state {
+	case typingView:
+		return m.typing.View()
+	case optionsView:
+		return m.options.View()
 	}
 
-	textStarted := len(m.gottenText) > 0
-	if m.appState == appStartState && textStarted {
-		m.appState = appTypeState
-		m.cursor.SetMode(cursor.CursorStatic)
-	}
-}
-
-func (m *model) updateStats() {
-	if m.appState != appTypeState {
-		return
-	}
-
-	m.wpm = m.calculateWPM()
-	m.accuracy = m.calculateAccuracy()
+	return ""
 }

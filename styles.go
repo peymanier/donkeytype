@@ -18,11 +18,11 @@ func defaultStyles() *styles {
 	}
 }
 
-func (m model) newRuneStyle(color lipgloss.Color) lipgloss.Style {
+func (m typingModel) newRuneStyle(color lipgloss.Color) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(color)
 }
 
-func (m model) newHeaderStyle() lipgloss.Style {
+func (m typingModel) newHeaderStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().
@@ -32,7 +32,7 @@ func (m model) newHeaderStyle() lipgloss.Style {
 		MarginBottom(4)
 }
 
-func (m model) newStatStyle() lipgloss.Style {
+func (m typingModel) newStatStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().
@@ -41,7 +41,7 @@ func (m model) newStatStyle() lipgloss.Style {
 		PaddingRight(4)
 }
 
-func (m model) newBodyStyle() lipgloss.Style {
+func (m typingModel) newBodyStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().

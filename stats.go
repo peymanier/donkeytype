@@ -2,7 +2,7 @@ package main
 
 import "time"
 
-func (m model) calculateWPM() int {
+func (m typingModel) calculateWPM() int {
 	var endTime time.Time
 	if m.endTime != nil {
 		endTime = *m.endTime
@@ -16,13 +16,13 @@ func (m model) calculateWPM() int {
 	return int(wpm)
 }
 
-func (m model) calculateAccuracy() int {
+func (m typingModel) calculateAccuracy() int {
 	correctCount := m.calculateCorrectCount()
 	accuracy := float64(correctCount) / float64(len(m.gottenText)) * 100
 	return int(accuracy)
 }
 
-func (m model) calculateCorrectCount() int {
+func (m typingModel) calculateCorrectCount() int {
 	minLen := min(len(m.wantedText), len(m.gottenText))
 
 	var correct int
