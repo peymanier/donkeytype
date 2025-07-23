@@ -29,10 +29,10 @@ var keys = keyMap{
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "toggle options"),
 	),
-	Help: key.NewBinding(
-		key.WithKeys("ctrl+h"),
-		key.WithHelp("ctrl+h", "toggle help"),
-	),
+	// Help: key.NewBinding(
+	// 	key.WithKeys("ctrl+h"),
+	// 	key.WithHelp("ctrl+h", "toggle help"),
+	// ),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
@@ -61,8 +61,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, m.keys.Help):
-			m.help.ShowAll = !m.help.ShowAll
+		// case key.Matches(msg, m.keys.Help):
+		// 	m.help.ShowAll = !m.help.ShowAll
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		}
@@ -71,5 +71,5 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return "options baby"
+	return m.help.View(m.keys)
 }
