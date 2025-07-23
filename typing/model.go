@@ -8,10 +8,50 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/cursor"
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/mierlabs/donkeytype/messages"
 )
+
+type keyMap struct {
+	Restart       key.Binding
+	Help          key.Binding
+	ToggleOptions key.Binding
+	Quit          key.Binding
+}
+
+func (k keyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Restart, k.ToggleOptions, k.Help, k.Quit}
+}
+
+func (k keyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.Restart, k.ToggleOptions},
+		{k.Help, k.Quit},
+	}
+}
+
+var keys = keyMap{
+	Restart: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "restart test"),
+	),
+	ToggleOptions: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "toggle options"),
+	),
+	Help: key.NewBinding(
+		key.WithKeys("ctrl+h"),
+		key.WithHelp("ctrl+h", "toggle help"),
+	),
+	Quit: key.NewBinding(
+		key.WithKeys("ctrl+c"),
+		key.WithHelp("ctrl+c", "quit"),
+	),
+}
 
 type typingState int
 
@@ -59,6 +99,8 @@ type Model struct {
 	timeData
 	cursorData
 	stats
+	keys keyMap
+	help help.Model
 }
 
 type Opts struct {
@@ -96,6 +138,8 @@ func New(opts Opts) Model {
 			wpm:      0,
 			accuracy: 0,
 		},
+		keys: keys,
+		help: help.New(),
 	}
 }
 
@@ -111,6 +155,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		m.help.Width = msg.Width
 
 	case timer.TickMsg:
 		m.updateStats()
@@ -125,20 +170,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.updateTypingState()
 		return m, nil
 
+	case errMsg:
+		m.err = msg
+		return m, nil
+
 	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEsc:
-			return m, nil
-
-		case tea.KeyCtrlC:
+		switch {
+		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
+		case key.Matches(msg, m.keys.Help):
+			m.help.ShowAll = !m.help.ShowAll
+		case key.Matches(msg, m.keys.ToggleOptions):
+			return m, messages.ToggleOptions
+		case key.Matches(msg, m.keys.Restart):
+			return m, messages.Restart(m.height, m.width)
+		}
 
+		switch msg.Type {
 		case tea.KeyBackspace:
 			m.gottenText = removeLastRune(m.gottenText)
 			m.position--
-
-		case tea.KeyEnter:
-			return New(Opts{Width: m.width, Height: m.height}), nil
 
 		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {
@@ -157,10 +208,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		default:
 			log.Printf("key unhandled msg.Type: %d, msg.String(): %s", msg.Type, msg.String())
 		}
-
-	case errMsg:
-		m.err = msg
-		return m, nil
 
 	default:
 		log.Printf("msg unhandled msg: %v", msg)

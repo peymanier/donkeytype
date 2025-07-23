@@ -2,6 +2,7 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mierlabs/donkeytype/messages"
 	"github.com/mierlabs/donkeytype/options"
 	"github.com/mierlabs/donkeytype/typing"
 )
@@ -35,18 +36,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEscape:
-			if m.state == typingView {
-				m.state = optionsView
-			} else {
-				m.state = typingView
-			}
+	case messages.RestartMsg:
+		m.typing = typing.New(typing.Opts{Width: msg.Width, Height: msg.Height})
+		return m, nil
 
-			return m, cmd
+	case messages.ToggleOptionsMsg:
+		if m.state == typingView {
+			m.state = optionsView
+		} else {
+			m.state = typingView
 		}
 
+		return m, cmd
 	}
 
 	switch m.state {
