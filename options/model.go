@@ -3,7 +3,9 @@ package options
 import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/mierlabs/donkeytype/messages"
 )
 
@@ -39,13 +41,36 @@ var keys = keyMap{
 	),
 }
 
+type item struct {
+	title       string
+	description string
+}
+
+func (i item) Title() string       { return i.title }
+func (i item) Description() string { return i.description }
+func (i item) FilterValue() string { return i.title }
+
 type Model struct {
-	keys keyMap
-	help help.Model
+	list   list.Model
+	keys   keyMap
+	help   help.Model
+	width  int
+	height int
 }
 
 func New() Model {
+	items := []list.Item{
+		item{title: "Choose Keys"},
+		item{title: "Change Timer"},
+	}
+
+	delegate := list.NewDefaultDelegate()
+
+	list := list.New(items, delegate, 0, 0)
+	list.Title = "Options"
+
 	return Model{
+		list: list,
 		keys: keys,
 		help: help.New(),
 	}
@@ -56,7 +81,17 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+
+		// TODO: Fix magic numbers
+		m.list.SetSize(msg.Width*4/5, msg.Height*4/5)
+
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.keys.Quit):
@@ -67,9 +102,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, messages.ToggleOptions
 		}
 	}
-	return m, nil
+
+	m.list, cmd = m.list.Update(msg)
+	cmds = append(cmds, cmd)
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return m.help.View(m.keys)
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.list.View(),
+		m.help.View(m.keys),
+	)
 }

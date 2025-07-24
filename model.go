@@ -36,6 +36,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		// TODO: Refactor duplicate code
+		newTyping, _ := m.typing.Update(msg)
+		typing, ok := newTyping.(typing.Model)
+		if !ok {
+			panic("could not perform type assertion on typing model")
+		}
+
+		m.typing = typing
+
+		newOptions, _ := m.options.Update(msg)
+		options, ok := newOptions.(options.Model)
+		if !ok {
+			panic("could not perform type assertion on options model")
+		}
+
+		m.options = options
+
 	case messages.RestartMsg:
 		m.typing = typing.New(typing.Opts{Width: msg.Width, Height: msg.Height})
 		return m, nil
