@@ -10,31 +10,26 @@ import (
 )
 
 type keyMap struct {
-	Help          key.Binding
 	ToggleOptions key.Binding
 	Quit          key.Binding
 }
 
 func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.ToggleOptions, k.Help, k.Quit}
+	return []key.Binding{k.ToggleOptions, k.Quit}
 }
 
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.ToggleOptions},
-		{k.Help, k.Quit},
+		{k.Quit},
 	}
 }
 
 var keys = keyMap{
 	ToggleOptions: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "toggle options"),
+		key.WithKeys("ctrl+o"),
+		key.WithHelp("ctrl+o", "toggle options"),
 	),
-	// Help: key.NewBinding(
-	// 	key.WithKeys("ctrl+h"),
-	// 	key.WithHelp("ctrl+h", "toggle help"),
-	// ),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
@@ -68,6 +63,10 @@ func New() Model {
 
 	list := list.New(items, delegate, 0, 0)
 	list.Title = "Options"
+	list.DisableQuitKeybindings()
+	list.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{keys.ToggleOptions, keys.Quit}
+	}
 
 	return Model{
 		list: list,
@@ -96,8 +95,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
-		// case key.Matches(msg, m.keys.Help):
-		// 	m.help.ShowAll = !m.help.ShowAll
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		}
@@ -113,6 +110,5 @@ func (m Model) View() string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		m.list.View(),
-		m.help.View(m.keys),
 	)
 }

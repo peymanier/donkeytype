@@ -18,35 +18,30 @@ import (
 
 type keyMap struct {
 	Restart       key.Binding
-	Help          key.Binding
 	ToggleOptions key.Binding
 	Quit          key.Binding
 }
 
 func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Restart, k.ToggleOptions, k.Help, k.Quit}
+	return []key.Binding{k.Restart, k.ToggleOptions, k.Quit}
 }
 
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Restart, k.ToggleOptions},
-		{k.Help, k.Quit},
+		{k.Quit},
 	}
 }
 
 var keys = keyMap{
 	Restart: key.NewBinding(
 		key.WithKeys("enter"),
-		key.WithHelp("enter", "restart test"),
+		key.WithHelp("enter", "restart"),
 	),
 	ToggleOptions: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "toggle options"),
+		key.WithKeys("ctrl+o"),
+		key.WithHelp("ctrl+o", "toggle options"),
 	),
-	// Help: key.NewBinding(
-	// 	key.WithKeys("ctrl+h"),
-	// 	key.WithHelp("ctrl+h", "toggle help"),
-	// ),
 	Quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
