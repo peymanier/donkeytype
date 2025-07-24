@@ -1,7 +1,6 @@
 package options
 
 import (
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,17 +11,6 @@ import (
 type keyMap struct {
 	ToggleOptions key.Binding
 	Quit          key.Binding
-}
-
-func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.ToggleOptions, k.Quit}
-}
-
-func (k keyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.ToggleOptions},
-		{k.Quit},
-	}
 }
 
 var keys = keyMap{
@@ -48,7 +36,6 @@ func (i item) FilterValue() string { return i.title }
 type Model struct {
 	list   list.Model
 	keys   keyMap
-	help   help.Model
 	width  int
 	height int
 }
@@ -74,7 +61,6 @@ func New() Model {
 	return Model{
 		list: list,
 		keys: keys,
-		help: help.New(),
 	}
 }
 
