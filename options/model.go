@@ -67,6 +67,9 @@ func New() Model {
 	list.AdditionalShortHelpKeys = func() []key.Binding {
 		return []key.Binding{keys.ToggleOptions, keys.Quit}
 	}
+	list.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{keys.ToggleOptions, keys.Quit}
+	}
 
 	return Model{
 		list: list,
