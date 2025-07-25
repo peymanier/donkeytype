@@ -31,7 +31,15 @@ var keys = keyMap{
 	),
 }
 
+type id int
+
+const (
+	keysID id = iota
+	timerID
+)
+
 type option struct {
+	id          id
 	title       string
 	description string
 }
@@ -39,6 +47,11 @@ type option struct {
 func (i option) Title() string       { return i.title }
 func (i option) Description() string { return i.description }
 func (i option) FilterValue() string { return i.title }
+
+var options = []option{
+	{id: keysID, title: "Choose Keys"},
+	{id: timerID, title: "Change Timer"},
+}
 
 type Model struct {
 	list   list.Model
@@ -48,9 +61,9 @@ type Model struct {
 }
 
 func New() Model {
-	items := []list.Item{
-		option{title: "Choose Keys"},
-		option{title: "Change Timer"},
+	items := make([]list.Item, len(options))
+	for i, opt := range options {
+		items[i] = opt
 	}
 
 	delegate := list.NewDefaultDelegate()
@@ -99,7 +112,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !ok {
 				panic("could not perform type assertion on list item")
 			}
-			log.Println(selectedOption.title)
+			switch selectedOption.id {
+			case keysID:
+				log.Println("keys selected")
+			case timerID:
+				log.Println("timer selected")
+			default:
+				log.Println("invalid option")
+			}
 		}
 	}
 
