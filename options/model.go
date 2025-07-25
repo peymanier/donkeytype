@@ -31,14 +31,14 @@ var keys = keyMap{
 	),
 }
 
-type item struct {
+type option struct {
 	title       string
 	description string
 }
 
-func (i item) Title() string       { return i.title }
-func (i item) Description() string { return i.description }
-func (i item) FilterValue() string { return i.title }
+func (i option) Title() string       { return i.title }
+func (i option) Description() string { return i.description }
+func (i option) FilterValue() string { return i.title }
 
 type Model struct {
 	list   list.Model
@@ -49,8 +49,8 @@ type Model struct {
 
 func New() Model {
 	items := []list.Item{
-		item{title: "Choose Keys"},
-		item{title: "Change Timer"},
+		option{title: "Choose Keys"},
+		option{title: "Change Timer"},
 	}
 
 	delegate := list.NewDefaultDelegate()
@@ -95,11 +95,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, messages.ToggleOptions
 		case key.Matches(msg, m.keys.Select):
 			selectedItem := m.list.SelectedItem()
-			listItem, ok := selectedItem.(item)
+			selectedOption, ok := selectedItem.(option)
 			if !ok {
 				panic("could not perform type assertion on list item")
 			}
-			log.Println(listItem.title)
+			log.Println(selectedOption.title)
 		}
 	}
 
