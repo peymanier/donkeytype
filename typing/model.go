@@ -51,7 +51,7 @@ var keys = keyMap{
 type typingState int
 
 const (
-	typingPending = iota
+	typingPending typingState = iota
 	typingInProgress
 	typingFinish
 )
@@ -59,7 +59,7 @@ const (
 type timerState int
 
 const (
-	timerStop = iota
+	timerStop timerState = iota
 	timerRun
 	timerTimeout
 )

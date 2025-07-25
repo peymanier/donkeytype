@@ -10,7 +10,7 @@ import (
 type state int
 
 const (
-	typingView = iota
+	typingView state = iota
 	optionsView
 )
 
