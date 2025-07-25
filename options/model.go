@@ -1,6 +1,8 @@
 package options
 
 import (
+	"log"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -9,11 +11,16 @@ import (
 )
 
 type keyMap struct {
+	Select        key.Binding
 	ToggleOptions key.Binding
 	Quit          key.Binding
 }
 
 var keys = keyMap{
+	Select: key.NewBinding(
+		key.WithKeys("enter"),
+		key.WithHelp("enter", "select"),
+	),
 	ToggleOptions: key.NewBinding(
 		key.WithKeys("ctrl+o"),
 		key.WithHelp("ctrl+o", "toggle options"),
@@ -52,10 +59,10 @@ func New() Model {
 	list.Title = "Options"
 	list.DisableQuitKeybindings()
 	list.AdditionalShortHelpKeys = func() []key.Binding {
-		return []key.Binding{keys.ToggleOptions, keys.Quit}
+		return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
 	}
 	list.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{keys.ToggleOptions, keys.Quit}
+		return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
 	}
 
 	return Model{
@@ -86,6 +93,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
+		case key.Matches(msg, m.keys.Select):
+			selectedItem := m.list.SelectedItem()
+			listItem, ok := selectedItem.(item)
+			if !ok {
+				panic("could not perform type assertion on list item")
+			}
+			log.Println(listItem.title)
 		}
 	}
 
