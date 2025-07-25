@@ -41,7 +41,7 @@ type option struct {
 	id          id
 	title       string
 	description string
-	listModel   list.Model
+	list        list.Model
 	choices     []choice
 }
 
@@ -83,7 +83,7 @@ func (c choice) Description() string { return c.description }
 func (c choice) FilterValue() string { return c.title }
 
 type Model struct {
-	listModel      list.Model
+	list           list.Model
 	options        []option
 	selectedOption *option
 	keys           keyMap
@@ -92,6 +92,7 @@ type Model struct {
 }
 
 func New() Model {
+	// TODO: Fix this madness
 	delegate := list.NewDefaultDelegate()
 
 	items := make([]list.Item, len(options))
@@ -111,7 +112,7 @@ func New() Model {
 			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
 		}
 
-		opt.listModel = list
+		opt.list = list
 		items[i] = opt
 	}
 
@@ -126,9 +127,9 @@ func New() Model {
 	}
 
 	return Model{
-		listModel: list,
-		options:   options,
-		keys:      keys,
+		list:    list,
+		options: options,
+		keys:    keys,
 	}
 }
 
@@ -146,9 +147,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 
 		// TODO: Fix magic numbers
-		m.listModel.SetSize(msg.Width*4/5, msg.Height*4/5)
+		m.list.SetSize(msg.Width*4/5, msg.Height*4/5)
 		if m.selectedOption != nil {
-			m.selectedOption.listModel.SetSize(msg.Width*4/5, msg.Height*4/5)
+			m.selectedOption.list.SetSize(msg.Width*4/5, msg.Height*4/5)
 		}
 
 	case tea.KeyMsg:
@@ -158,37 +159,48 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		case key.Matches(msg, m.keys.Select):
-			selectedItem := m.listModel.SelectedItem()
-			selectedOption, ok := selectedItem.(option)
-			if !ok {
-				panic("could not perform type assertion on list item")
-			}
+			isOptionFiltering := m.list.FilterState() == list.Filtering
+			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
 
-			switch selectedOption.id {
-			case keysID:
-				m.selectedOption = &selectedOption
-				m.selectedOption.listModel.SetSize(m.width*4/5, m.height*4/5)
-				log.Println("keys selected")
-			case timerID:
-				m.selectedOption = &selectedOption
-				m.selectedOption.listModel.SetSize(m.width*4/5, m.height*4/5)
-				log.Println("timer selected")
-			default:
-				log.Println("invalid option")
+			if !isOptionFiltering && !isChoiceFiltering {
+				// TODO: Fix this madness
+				selectedItem := m.list.SelectedItem()
+				selectedOption, ok := selectedItem.(option)
+				if !ok {
+					panic("could not perform type assertion on list item")
+				}
+
+				switch selectedOption.id {
+				case keysID:
+					m.selectedOption = &selectedOption
+					m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
+					log.Println("keys selected")
+				case timerID:
+					m.selectedOption = &selectedOption
+					m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
+					log.Println("timer selected")
+				default:
+					log.Println("invalid option")
+				}
 			}
 		}
 	}
 
-	m.listModel, cmd = m.listModel.Update(msg)
-	cmds = append(cmds, cmd)
+	if m.selectedOption != nil {
+		m.selectedOption.list, cmd = m.selectedOption.list.Update(msg)
+		cmds = append(cmds, cmd)
+	} else {
+		m.list, cmd = m.list.Update(msg)
+		cmds = append(cmds, cmd)
+	}
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
 	if m.selectedOption != nil {
-		return m.selectedOption.listModel.View()
+		return m.selectedOption.list.View()
 	}
 
-	return m.listModel.View()
+	return m.list.View()
 }
