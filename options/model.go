@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/mierlabs/donkeytype/messages"
 )
 
@@ -42,6 +41,8 @@ type option struct {
 	id          id
 	title       string
 	description string
+	listModel   list.Model
+	choices     []choice
 }
 
 func (i option) Title() string       { return i.title }
@@ -49,24 +50,70 @@ func (i option) Description() string { return i.description }
 func (i option) FilterValue() string { return i.title }
 
 var options = []option{
-	{id: keysID, title: "Choose Keys"},
-	{id: timerID, title: "Change Timer"},
+	{id: keysID, title: "Choose Keys", choices: []choice{
+		{id: keysCustom, title: "Custom"},
+		{id: keysLeftMiddleRow, title: "Left Hand Middle Row"},
+	}},
+	{id: timerID, title: "Change Timer", choices: []choice{
+		{id: timerCustom, title: "Custom"},
+		{id: timer15Seconds, title: "15 Seconds"},
+		{id: timer30Seconds, title: "30 Seconds"},
+	}},
 }
 
+type choiceID int
+
+const (
+	keysCustom choiceID = iota
+	keysLeftMiddleRow
+
+	timerCustom
+	timer15Seconds
+	timer30Seconds
+)
+
+type choice struct {
+	id          choiceID
+	title       string
+	description string
+}
+
+func (c choice) Title() string       { return c.title }
+func (c choice) Description() string { return c.description }
+func (c choice) FilterValue() string { return c.title }
+
 type Model struct {
-	list   list.Model
-	keys   keyMap
-	width  int
-	height int
+	listModel      list.Model
+	options        []option
+	selectedOption *option
+	keys           keyMap
+	width          int
+	height         int
 }
 
 func New() Model {
+	delegate := list.NewDefaultDelegate()
+
 	items := make([]list.Item, len(options))
 	for i, opt := range options {
+		itemChoices := make([]list.Item, len(opt.choices))
+		for j, optChoice := range opt.choices {
+			itemChoices[j] = optChoice
+		}
+
+		list := list.New(itemChoices, delegate, 0, 0)
+		list.Title = "Option Choices"
+		list.DisableQuitKeybindings()
+		list.AdditionalShortHelpKeys = func() []key.Binding {
+			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+		}
+		list.AdditionalFullHelpKeys = func() []key.Binding {
+			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+		}
+
+		opt.listModel = list
 		items[i] = opt
 	}
-
-	delegate := list.NewDefaultDelegate()
 
 	list := list.New(items, delegate, 0, 0)
 	list.Title = "Options"
@@ -79,8 +126,9 @@ func New() Model {
 	}
 
 	return Model{
-		list: list,
-		keys: keys,
+		listModel: list,
+		options:   options,
+		keys:      keys,
 	}
 }
 
@@ -98,7 +146,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 
 		// TODO: Fix magic numbers
-		m.list.SetSize(msg.Width*4/5, msg.Height*4/5)
+		m.listModel.SetSize(msg.Width*4/5, msg.Height*4/5)
+		if m.selectedOption != nil {
+			m.selectedOption.listModel.SetSize(msg.Width*4/5, msg.Height*4/5)
+		}
 
 	case tea.KeyMsg:
 		switch {
@@ -107,15 +158,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		case key.Matches(msg, m.keys.Select):
-			selectedItem := m.list.SelectedItem()
+			selectedItem := m.listModel.SelectedItem()
 			selectedOption, ok := selectedItem.(option)
 			if !ok {
 				panic("could not perform type assertion on list item")
 			}
+
 			switch selectedOption.id {
 			case keysID:
+				m.selectedOption = &selectedOption
+				m.selectedOption.listModel.SetSize(m.width*4/5, m.height*4/5)
 				log.Println("keys selected")
 			case timerID:
+				m.selectedOption = &selectedOption
+				m.selectedOption.listModel.SetSize(m.width*4/5, m.height*4/5)
 				log.Println("timer selected")
 			default:
 				log.Println("invalid option")
@@ -123,15 +179,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	}
 
-	m.list, cmd = m.list.Update(msg)
+	m.listModel, cmd = m.listModel.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m Model) View() string {
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		m.list.View(),
-	)
+	if m.selectedOption != nil {
+		return m.selectedOption.listModel.View()
+	}
+
+	return m.listModel.View()
 }
