@@ -10,12 +10,17 @@ import (
 )
 
 type keyMap struct {
+	Back          key.Binding
 	Select        key.Binding
 	ToggleOptions key.Binding
 	Quit          key.Binding
 }
 
 var keys = keyMap{
+	Back: key.NewBinding(
+		key.WithKeys("esc"),
+		key.WithHelp("esc", "back"),
+	),
 	Select: key.NewBinding(
 		key.WithKeys("enter"),
 		key.WithHelp("enter", "select"),
@@ -106,10 +111,10 @@ func New() Model {
 		list.Title = "Option Choices"
 		list.DisableQuitKeybindings()
 		list.AdditionalShortHelpKeys = func() []key.Binding {
-			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 		}
 		list.AdditionalFullHelpKeys = func() []key.Binding {
-			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 		}
 
 		opt.list = list
@@ -120,10 +125,10 @@ func New() Model {
 	list.Title = "Options"
 	list.DisableQuitKeybindings()
 	list.AdditionalShortHelpKeys = func() []key.Binding {
-		return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 	}
 	list.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 	}
 
 	return Model{
@@ -158,6 +163,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
+		case key.Matches(msg, m.keys.Back):
+			isOptionFiltering := m.list.FilterState() == list.Filtering
+			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
+
+			if !isOptionFiltering && !isChoiceFiltering {
+				if m.selectedOption != nil {
+					m.selectedOption = nil
+					return m, nil
+				} else {
+					return m, messages.ToggleOptions
+				}
+			}
+
 		case key.Matches(msg, m.keys.Select):
 			isOptionFiltering := m.list.FilterState() == list.Filtering
 			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
