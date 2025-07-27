@@ -164,24 +164,49 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			if !isOptionFiltering && !isChoiceFiltering {
 				// TODO: Fix this madness
-				selectedItem := m.list.SelectedItem()
-				selectedOption, ok := selectedItem.(option)
-				if !ok {
-					panic("could not perform type assertion on list item")
+				if m.selectedOption != nil {
+					selectedItem := m.selectedOption.list.SelectedItem()
+					selectedChoice, ok := selectedItem.(choice)
+					if !ok {
+						panic("could not perform type assertion on list item (choice)")
+					}
+
+					switch selectedChoice.id {
+					case keysCustom:
+						log.Println("keys custom")
+					case keysLeftMiddleRow:
+						log.Println("keys left middle row")
+					case timerCustom:
+						log.Println("timer custom")
+					case timer15Seconds:
+						log.Println("timer 15 seconds")
+					case timer30Seconds:
+						log.Println("timer 30 seconds")
+					default:
+						log.Println("invalid option")
+					}
+
+				} else {
+					selectedItem := m.list.SelectedItem()
+					selectedOption, ok := selectedItem.(option)
+					if !ok {
+						panic("could not perform type assertion on list item (option)")
+					}
+
+					switch selectedOption.id {
+					case keysID:
+						m.selectedOption = &selectedOption
+						m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
+						log.Println("keys selected")
+					case timerID:
+						m.selectedOption = &selectedOption
+						m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
+						log.Println("timer selected")
+					default:
+						log.Println("invalid option")
+					}
 				}
 
-				switch selectedOption.id {
-				case keysID:
-					m.selectedOption = &selectedOption
-					m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-					log.Println("keys selected")
-				case timerID:
-					m.selectedOption = &selectedOption
-					m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-					log.Println("timer selected")
-				default:
-					log.Println("invalid option")
-				}
 			}
 		}
 	}
