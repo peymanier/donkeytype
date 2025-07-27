@@ -96,52 +96,9 @@ type Model struct {
 	height         int
 }
 
-func setupOptionList() []list.Item {
-	delegate := list.NewDefaultDelegate()
-
-	items := make([]list.Item, len(options))
-	for i, opt := range options {
-		choiceItem := make([]list.Item, len(opt.choices))
-		for j, choice := range opt.choices {
-			choiceItem[j] = choice
-		}
-
-		list := list.New(choiceItem, delegate, 0, 0)
-		list.Title = "Option Choices"
-		list.DisableQuitKeybindings()
-		list.AdditionalShortHelpKeys = func() []key.Binding {
-			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-		}
-		list.AdditionalFullHelpKeys = func() []key.Binding {
-			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-		}
-
-		opt.list = list
-		items[i] = opt
-	}
-
-	return items
-}
-
-func NewOptionList(items []list.Item) list.Model {
-	delegate := list.NewDefaultDelegate()
-
-	list := list.New(items, delegate, 0, 0)
-	list.Title = "Options"
-	list.DisableQuitKeybindings()
-	list.AdditionalShortHelpKeys = func() []key.Binding {
-		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-	}
-	list.AdditionalFullHelpKeys = func() []key.Binding {
-		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-	}
-
-	return list
-}
-
 func New() Model {
 	items := setupOptionList()
-	list := NewOptionList(items)
+	list := newOptionList(items)
 
 	return Model{
 		list:    list,
@@ -215,6 +172,49 @@ func (m Model) View() string {
 	}
 
 	return m.list.View()
+}
+
+func setupOptionList() []list.Item {
+	delegate := list.NewDefaultDelegate()
+
+	items := make([]list.Item, len(options))
+	for i, opt := range options {
+		choiceItem := make([]list.Item, len(opt.choices))
+		for j, choice := range opt.choices {
+			choiceItem[j] = choice
+		}
+
+		list := list.New(choiceItem, delegate, 0, 0)
+		list.Title = "Option Choices"
+		list.DisableQuitKeybindings()
+		list.AdditionalShortHelpKeys = func() []key.Binding {
+			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+		}
+		list.AdditionalFullHelpKeys = func() []key.Binding {
+			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+		}
+
+		opt.list = list
+		items[i] = opt
+	}
+
+	return items
+}
+
+func newOptionList(items []list.Item) list.Model {
+	delegate := list.NewDefaultDelegate()
+
+	list := list.New(items, delegate, 0, 0)
+	list.Title = "Options"
+	list.DisableQuitKeybindings()
+	list.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+	}
+	list.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+	}
+
+	return list
 }
 
 func handleSelectOption(m Model) (Model, tea.Cmd) {
