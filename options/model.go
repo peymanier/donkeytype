@@ -96,18 +96,17 @@ type Model struct {
 	height         int
 }
 
-func New() Model {
-	// TODO: Fix this madness
+func setupOptionList() []list.Item {
 	delegate := list.NewDefaultDelegate()
 
 	items := make([]list.Item, len(options))
 	for i, opt := range options {
-		itemChoices := make([]list.Item, len(opt.choices))
-		for j, optChoice := range opt.choices {
-			itemChoices[j] = optChoice
+		choiceItem := make([]list.Item, len(opt.choices))
+		for j, choice := range opt.choices {
+			choiceItem[j] = choice
 		}
 
-		list := list.New(itemChoices, delegate, 0, 0)
+		list := list.New(choiceItem, delegate, 0, 0)
 		list.Title = "Option Choices"
 		list.DisableQuitKeybindings()
 		list.AdditionalShortHelpKeys = func() []key.Binding {
@@ -121,6 +120,12 @@ func New() Model {
 		items[i] = opt
 	}
 
+	return items
+}
+
+func NewOptionList(items []list.Item) list.Model {
+	delegate := list.NewDefaultDelegate()
+
 	list := list.New(items, delegate, 0, 0)
 	list.Title = "Options"
 	list.DisableQuitKeybindings()
@@ -130,6 +135,13 @@ func New() Model {
 	list.AdditionalFullHelpKeys = func() []key.Binding {
 		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 	}
+
+	return list
+}
+
+func New() Model {
+	items := setupOptionList()
+	list := NewOptionList(items)
 
 	return Model{
 		list:    list,
