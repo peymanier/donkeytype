@@ -158,12 +158,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
+	isOptionFiltering := m.list.FilterState() == list.Filtering
+	isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
+
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
 
-		// TODO: Fix magic numbers
 		m.list.SetSize(msg.Width*4/5, msg.Height*4/5)
 		if m.selectedOption != nil {
 			m.selectedOption.list.SetSize(msg.Width*4/5, msg.Height*4/5)
@@ -176,9 +178,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		case key.Matches(msg, m.keys.Back):
-			isOptionFiltering := m.list.FilterState() == list.Filtering
-			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
-
 			if !isOptionFiltering && !isChoiceFiltering {
 				if m.selectedOption != nil {
 					m.selectedOption = nil
@@ -189,54 +188,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, m.keys.Select):
-			isOptionFiltering := m.list.FilterState() == list.Filtering
-			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
-
 			if !isOptionFiltering && !isChoiceFiltering {
-				// TODO: Fix this madness
 				if m.selectedOption != nil {
-					selectedItem := m.selectedOption.list.SelectedItem()
-					selectedChoice, ok := selectedItem.(choice)
-					if !ok {
-						panic("could not perform type assertion on list item (choice)")
-					}
-
-					switch selectedChoice.id {
-					case keysCustom:
-						log.Println("keys custom")
-					case keysLeftMiddleRow:
-						log.Println("keys left middle row")
-					case timerCustom:
-						log.Println("timer custom")
-					case timer15Seconds:
-						log.Println("timer 15 seconds")
-					case timer30Seconds:
-						log.Println("timer 30 seconds")
-					default:
-						log.Println("invalid option")
-					}
-
+					m, _ = handleSelectChoice(m)
 				} else {
-					selectedItem := m.list.SelectedItem()
-					selectedOption, ok := selectedItem.(option)
-					if !ok {
-						panic("could not perform type assertion on list item (option)")
-					}
-
-					switch selectedOption.id {
-					case keysID:
-						m.selectedOption = &selectedOption
-						m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-						log.Println("keys selected")
-					case timerID:
-						m.selectedOption = &selectedOption
-						m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-						log.Println("timer selected")
-					default:
-						log.Println("invalid option")
-					}
+					m, _ = handleSelectOption(m)
 				}
-
 			}
 		}
 	}
@@ -258,4 +215,60 @@ func (m Model) View() string {
 	}
 
 	return m.list.View()
+}
+
+func handleSelectOption(m Model) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	selectedItem := m.list.SelectedItem()
+	selectedOption, ok := selectedItem.(option)
+	if !ok {
+		panic("could not perform type assertion on list item (option)")
+	}
+
+	switch selectedOption.id {
+	case keysID:
+		m.selectedOption = &selectedOption
+		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
+		log.Println("keys selected")
+	case timerID:
+		m.selectedOption = &selectedOption
+		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
+		log.Println("timer selected")
+	default:
+		log.Println("invalid option")
+	}
+
+	return m, cmd
+}
+
+func handleSelectChoice(m Model) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	if m.selectedOption == nil {
+		panic("option must be selected")
+	}
+
+	selectedItem := m.selectedOption.list.SelectedItem()
+	selectedChoice, ok := selectedItem.(choice)
+	if !ok {
+		panic("could not perform type assertion on list item (choice)")
+	}
+
+	switch selectedChoice.id {
+	case keysCustom:
+		log.Println("keys custom")
+	case keysLeftMiddleRow:
+		log.Println("keys left middle row")
+	case timerCustom:
+		log.Println("timer custom")
+	case timer15Seconds:
+		log.Println("timer 15 seconds")
+	case timer30Seconds:
+		log.Println("timer 30 seconds")
+	default:
+		log.Println("invalid option")
+	}
+
+	return m, cmd
 }
