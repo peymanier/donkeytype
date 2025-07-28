@@ -40,7 +40,7 @@ type id int
 
 const (
 	keysID id = iota
-	timerID
+	durationID
 )
 
 type option struct {
@@ -60,10 +60,10 @@ var options = []option{
 		{id: keysCustom, title: "Custom"},
 		{id: keysLeftMiddleRow, title: "Left Hand Middle Row", value: "asdf"},
 	}},
-	{id: timerID, title: "Change Timer", choices: []choice{
-		{id: timerCustom, title: "Custom"},
-		{id: timer15Seconds, title: "15 Seconds", value: 15 * time.Second},
-		{id: timer30Seconds, title: "30 Seconds", value: 30 * time.Second},
+	{id: durationID, title: "Change Duration", choices: []choice{
+		{id: durationCustom, title: "Custom"},
+		{id: duration15Seconds, title: "15 Seconds", value: 15 * time.Second},
+		{id: duration30Seconds, title: "30 Seconds", value: 30 * time.Second},
 	}},
 }
 
@@ -73,9 +73,9 @@ const (
 	keysCustom choiceID = iota
 	keysLeftMiddleRow
 
-	timerCustom
-	timer15Seconds
-	timer30Seconds
+	durationCustom
+	duration15Seconds
+	duration30Seconds
 )
 
 type choice struct {
@@ -234,7 +234,7 @@ func handleSelectOption(m Model) (Model, tea.Cmd) {
 	case keysID:
 		m.selectedOption = &selectedOption
 		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-	case timerID:
+	case durationID:
 		m.selectedOption = &selectedOption
 		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
 	default:
@@ -267,15 +267,15 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 		text := selectedChoice.value.(string)
 		return m, messages.ChangeText([]rune(text), m.height, m.width)
 
-	case timerCustom:
+	case durationCustom:
 		duration := selectedChoice.value.(time.Duration)
 		return m, messages.ChangeDuration(duration, m.height, m.width)
 
-	case timer15Seconds:
+	case duration15Seconds:
 		duration := selectedChoice.value.(time.Duration)
 		return m, messages.ChangeDuration(duration, m.height, m.width)
 
-	case timer30Seconds:
+	case duration30Seconds:
 		duration := selectedChoice.value.(time.Duration)
 		return m, messages.ChangeDuration(duration, m.height, m.width)
 
