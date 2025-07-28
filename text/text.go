@@ -1,4 +1,4 @@
-package options
+package text
 
 import (
 	"math/rand"

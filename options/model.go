@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mierlabs/donkeytype/messages"
+	"github.com/mierlabs/donkeytype/text"
 )
 
 type keyMap struct {
@@ -89,7 +90,7 @@ type Model struct {
 	height         int
 }
 
-var defaultKeys = Choice{ID: KeysDefault, title: "Default", Value: slices.Repeat(RandomPassage(), 10)}
+var defaultKeys = Choice{ID: KeysDefault, title: "Default", Value: slices.Repeat(text.RandomPassage(), 10)}
 var defaultDuration = Choice{ID: DurationDefault, title: "Default", Value: 10 * time.Second}
 
 var options = []option{

@@ -14,6 +14,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mierlabs/donkeytype/messages"
 	"github.com/mierlabs/donkeytype/options"
+	"github.com/mierlabs/donkeytype/text"
 )
 
 type keyMap struct {
@@ -184,7 +185,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.Type {
 		case tea.KeyBackspace:
-			m.gottenText = options.RemoveLastRune(m.gottenText)
+			m.gottenText = text.RemoveLastRune(m.gottenText)
 			m.position--
 
 		case tea.KeyRunes, tea.KeySpace:
