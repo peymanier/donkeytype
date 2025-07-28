@@ -77,7 +77,12 @@ type Choice struct {
 	Value       any
 }
 
-func (c Choice) Title() string       { return c.title }
+func (c Choice) Title() string {
+	if c.ID == SelectedKeys.ID || c.ID == SelectedDuration.ID {
+		return c.title + " ✓"
+	}
+	return c.title
+}
 func (c Choice) Description() string { return c.description }
 func (c Choice) FilterValue() string { return c.title }
 
@@ -96,12 +101,12 @@ var defaultDuration = Choice{ID: DurationDefault, title: "Default", Value: 10 * 
 var options = []option{
 	{id: keysID, title: "Choose Keys", choices: []Choice{
 		defaultKeys,
-		{ID: KeysCustom, title: "Custom"},
+		{ID: KeysCustom, title: "Custom", Value: []rune("something custom")},
 		{ID: KeysLeftMiddleRow, title: "Left Hand Middle Row", Value: []rune("asdf")},
 	}},
 	{id: durationID, title: "Change Duration", choices: []Choice{
 		defaultDuration,
-		{ID: DurationCustom, title: "Custom"},
+		{ID: DurationCustom, title: "Custom", Value: 1 * time.Second},
 		{ID: Duration15Seconds, title: "15 Seconds", Value: 15 * time.Second},
 		{ID: Duration30Seconds, title: "30 Seconds", Value: 30 * time.Second},
 	}},
@@ -270,11 +275,17 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 	}
 
 	switch selectedChoice.ID {
+	case KeysDefault:
+		return m, ChangeKeys(selectedChoice, m.height, m.width)
+
 	case KeysCustom:
 		return m, ChangeKeys(selectedChoice, m.height, m.width)
 
 	case KeysLeftMiddleRow:
 		return m, ChangeKeys(selectedChoice, m.height, m.width)
+
+	case DurationDefault:
+		return m, ChangeDuration(selectedChoice, m.height, m.width)
 
 	case DurationCustom:
 		return m, ChangeDuration(selectedChoice, m.height, m.width)
