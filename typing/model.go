@@ -3,7 +3,6 @@ package typing
 import (
 	"fmt"
 	"log"
-	"slices"
 	"strings"
 	"time"
 
@@ -14,7 +13,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mierlabs/donkeytype/messages"
-	"github.com/mierlabs/donkeytype/storage"
+	"github.com/mierlabs/donkeytype/options"
 )
 
 type keyMap struct {
@@ -105,22 +104,17 @@ type Opts struct {
 }
 
 func New(opts Opts) Model {
-	if storage.Duration == 0 {
-		storage.Duration = 30 * time.Second
-	}
-
-	timer := timer.NewWithInterval(storage.Duration, 100*time.Millisecond)
+	duration := options.SelectedDuration.Value.(time.Duration)
+	timer := timer.NewWithInterval(duration, 100*time.Millisecond)
 
 	cursor := cursor.New()
 	cursor.Focus()
 
-	if len(storage.Text) == 0 {
-		storage.Text = slices.Repeat(randomPassage(), 10)
-	}
+	wantedText := options.SelectedKeys.Value.([]rune)
 
 	return Model{
-		wantedText:  storage.Text,
-		gottenText:  make([]rune, 0, len(storage.Text)),
+		wantedText:  wantedText,
+		gottenText:  make([]rune, 0, len(wantedText)),
 		typingState: typingPending,
 		err:         nil,
 		width:       opts.Width,
@@ -190,7 +184,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.Type {
 		case tea.KeyBackspace:
-			m.gottenText = removeLastRune(m.gottenText)
+			m.gottenText = options.RemoveLastRune(m.gottenText)
 			m.position--
 
 		case tea.KeyRunes, tea.KeySpace:

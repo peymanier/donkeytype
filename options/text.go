@@ -1,4 +1,4 @@
-package typing
+package options
 
 import (
 	"math/rand"
@@ -42,11 +42,11 @@ var passages = []string{
 	"Practice daily, and soon your fingers will fly.",
 }
 
-func randomPassage() []rune {
+func RandomPassage() []rune {
 	return []rune(passages[rand.Intn(len(passages))])
 }
 
-func removeLastRune(r []rune) []rune {
+func RemoveLastRune(r []rune) []rune {
 	if len(r) == 0 {
 		return r
 	}

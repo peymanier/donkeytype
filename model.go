@@ -4,7 +4,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/mierlabs/donkeytype/messages"
 	"github.com/mierlabs/donkeytype/options"
-	"github.com/mierlabs/donkeytype/storage"
 	"github.com/mierlabs/donkeytype/typing"
 )
 
@@ -68,13 +67,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		return m, cmd
 
-	case messages.ChangeTextMsg:
-		storage.Text = msg.Text
+	case options.ChangeKeysMsg:
+		options.SelectedKeys = msg.Choice
 		m.typing = typing.New(typing.Opts{Width: msg.Width, Height: msg.Height})
 		return m, nil
 
-	case messages.ChangeDurationMsg:
-		storage.Duration = msg.Duration
+	case options.ChangeDurationMsg:
+		options.SelectedDuration = msg.Choice
 		m.typing = typing.New(typing.Opts{Width: msg.Width, Height: msg.Height})
 		return m, nil
 	}

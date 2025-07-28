@@ -2,6 +2,7 @@ package options
 
 import (
 	"log"
+	"slices"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -48,46 +49,36 @@ type option struct {
 	title       string
 	description string
 	list        list.Model
-	choices     []choice
+	choices     []Choice
 }
 
 func (i option) Title() string       { return i.title }
 func (i option) Description() string { return i.description }
 func (i option) FilterValue() string { return i.title }
 
-var options = []option{
-	{id: keysID, title: "Choose Keys", choices: []choice{
-		{id: keysCustom, title: "Custom"},
-		{id: keysLeftMiddleRow, title: "Left Hand Middle Row", value: "asdf"},
-	}},
-	{id: durationID, title: "Change Duration", choices: []choice{
-		{id: durationCustom, title: "Custom"},
-		{id: duration15Seconds, title: "15 Seconds", value: 15 * time.Second},
-		{id: duration30Seconds, title: "30 Seconds", value: 30 * time.Second},
-	}},
-}
-
-type choiceID int
+type ChoiceID int
 
 const (
-	keysCustom choiceID = iota
-	keysLeftMiddleRow
+	KeysDefault ChoiceID = iota
+	KeysCustom
+	KeysLeftMiddleRow
 
-	durationCustom
-	duration15Seconds
-	duration30Seconds
+	DurationDefault
+	DurationCustom
+	Duration15Seconds
+	Duration30Seconds
 )
 
-type choice struct {
-	id          choiceID
+type Choice struct {
+	ID          ChoiceID
 	title       string
 	description string
-	value       any
+	Value       any
 }
 
-func (c choice) Title() string       { return c.title }
-func (c choice) Description() string { return c.description }
-func (c choice) FilterValue() string { return c.title }
+func (c Choice) Title() string       { return c.title }
+func (c Choice) Description() string { return c.description }
+func (c Choice) FilterValue() string { return c.title }
 
 type Model struct {
 	list           list.Model
@@ -97,6 +88,26 @@ type Model struct {
 	width          int
 	height         int
 }
+
+var defaultKeys = Choice{ID: KeysDefault, title: "Default", Value: slices.Repeat(RandomPassage(), 10)}
+var defaultDuration = Choice{ID: DurationDefault, title: "Default", Value: 10 * time.Second}
+
+var options = []option{
+	{id: keysID, title: "Choose Keys", choices: []Choice{
+		defaultKeys,
+		{ID: KeysCustom, title: "Custom"},
+		{ID: KeysLeftMiddleRow, title: "Left Hand Middle Row", Value: []rune("asdf")},
+	}},
+	{id: durationID, title: "Change Duration", choices: []Choice{
+		defaultDuration,
+		{ID: DurationCustom, title: "Custom"},
+		{ID: Duration15Seconds, title: "15 Seconds", Value: 15 * time.Second},
+		{ID: Duration30Seconds, title: "30 Seconds", Value: 30 * time.Second},
+	}},
+}
+
+var SelectedKeys = defaultKeys
+var SelectedDuration = defaultDuration
 
 func New() Model {
 	items := setupOptionList()
@@ -252,36 +263,54 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 	}
 
 	selectedItem := m.selectedOption.list.SelectedItem()
-	selectedChoice, ok := selectedItem.(choice)
+	selectedChoice, ok := selectedItem.(Choice)
 	if !ok {
 		panic("could not perform type assertion on list item (choice)")
 	}
 
-	switch selectedChoice.id {
-	case keysCustom:
-		text := []rune("something custom")
-		return m, messages.ChangeText(text, m.height, m.width)
+	switch selectedChoice.ID {
+	case KeysCustom:
+		return m, ChangeKeys(selectedChoice, m.height, m.width)
 
-	case keysLeftMiddleRow:
-		log.Println("xdd")
-		text := selectedChoice.value.(string)
-		return m, messages.ChangeText([]rune(text), m.height, m.width)
+	case KeysLeftMiddleRow:
+		return m, ChangeKeys(selectedChoice, m.height, m.width)
 
-	case durationCustom:
-		duration := selectedChoice.value.(time.Duration)
-		return m, messages.ChangeDuration(duration, m.height, m.width)
+	case DurationCustom:
+		return m, ChangeDuration(selectedChoice, m.height, m.width)
 
-	case duration15Seconds:
-		duration := selectedChoice.value.(time.Duration)
-		return m, messages.ChangeDuration(duration, m.height, m.width)
+	case Duration15Seconds:
+		return m, ChangeDuration(selectedChoice, m.height, m.width)
 
-	case duration30Seconds:
-		duration := selectedChoice.value.(time.Duration)
-		return m, messages.ChangeDuration(duration, m.height, m.width)
+	case Duration30Seconds:
+		return m, ChangeDuration(selectedChoice, m.height, m.width)
 
 	default:
-		log.Println("unexpected choice id:", selectedChoice.id)
+		log.Println("unexpected choice id:", selectedChoice.ID)
 	}
 
 	return m, cmd
+}
+
+type ChangeKeysMsg struct {
+	Height int
+	Width  int
+	Choice Choice
+}
+
+func ChangeKeys(choice Choice, height, width int) tea.Cmd {
+	return func() tea.Msg {
+		return ChangeKeysMsg{Choice: choice, Height: height, Width: width}
+	}
+}
+
+type ChangeDurationMsg struct {
+	Height int
+	Width  int
+	Choice Choice
+}
+
+func ChangeDuration(choice Choice, height, width int) tea.Cmd {
+	return func() tea.Msg {
+		return ChangeDurationMsg{Choice: choice, Height: height, Width: width}
+	}
 }
