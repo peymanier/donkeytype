@@ -2,6 +2,9 @@ package text
 
 import (
 	"math/rand"
+	"strings"
+
+	"github.com/mierlabs/donkeytype/utils"
 )
 
 var passages = []string{
@@ -44,6 +47,11 @@ var passages = []string{
 
 func RandomPassage() []rune {
 	return []rune(passages[rand.Intn(len(passages))])
+}
+
+func SamplePassages(count int) []rune {
+	joined := strings.Join(utils.Sample(passages, count), " ")
+	return []rune(joined)
 }
 
 func RemoveLastRune(r []rune) []rune {

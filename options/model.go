@@ -2,7 +2,6 @@ package options
 
 import (
 	"log"
-	"slices"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -95,7 +94,7 @@ type Model struct {
 	height         int
 }
 
-var defaultKeys = Choice{ID: KeysDefault, title: "Default", Value: slices.Repeat(text.RandomPassage(), 10)}
+var defaultKeys = Choice{ID: KeysDefault, title: "Default", Value: text.SamplePassages(5)}
 var defaultDuration = Choice{ID: DurationDefault, title: "Default", Value: 10 * time.Second}
 
 var options = []option{
