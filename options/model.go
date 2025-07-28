@@ -2,6 +2,7 @@ package options
 
 import (
 	"log"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -57,12 +58,12 @@ func (i option) FilterValue() string { return i.title }
 var options = []option{
 	{id: keysID, title: "Choose Keys", choices: []choice{
 		{id: keysCustom, title: "Custom"},
-		{id: keysLeftMiddleRow, title: "Left Hand Middle Row"},
+		{id: keysLeftMiddleRow, title: "Left Hand Middle Row", value: "asdf"},
 	}},
 	{id: timerID, title: "Change Timer", choices: []choice{
 		{id: timerCustom, title: "Custom"},
-		{id: timer15Seconds, title: "15 Seconds"},
-		{id: timer30Seconds, title: "30 Seconds"},
+		{id: timer15Seconds, title: "15 Seconds", value: 15 * time.Second},
+		{id: timer30Seconds, title: "30 Seconds", value: 30 * time.Second},
 	}},
 }
 
@@ -81,6 +82,7 @@ type choice struct {
 	id          choiceID
 	title       string
 	description string
+	value       any
 }
 
 func (c choice) Title() string       { return c.title }
@@ -147,9 +149,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.Select):
 			if !isOptionFiltering && !isChoiceFiltering {
 				if m.selectedOption != nil {
-					m, _ = handleSelectChoice(m)
+					m, cmd = handleSelectChoice(m)
+					cmds = append(cmds, cmd)
 				} else {
-					m, _ = handleSelectOption(m)
+					m, cmd = handleSelectOption(m)
+					cmds = append(cmds, cmd)
 				}
 			}
 		}
@@ -230,11 +234,9 @@ func handleSelectOption(m Model) (Model, tea.Cmd) {
 	case keysID:
 		m.selectedOption = &selectedOption
 		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-		log.Println("keys selected")
 	case timerID:
 		m.selectedOption = &selectedOption
 		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
-		log.Println("timer selected")
 	default:
 		log.Println("invalid option")
 	}
@@ -257,17 +259,28 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 
 	switch selectedChoice.id {
 	case keysCustom:
-		log.Println("keys custom")
+		text := []rune("something custom")
+		return m, messages.ChangeText(text, m.height, m.width)
+
 	case keysLeftMiddleRow:
-		log.Println("keys left middle row")
+		log.Println("xdd")
+		text := selectedChoice.value.(string)
+		return m, messages.ChangeText([]rune(text), m.height, m.width)
+
 	case timerCustom:
-		log.Println("timer custom")
+		duration := selectedChoice.value.(time.Duration)
+		return m, messages.ChangeDuration(duration, m.height, m.width)
+
 	case timer15Seconds:
-		log.Println("timer 15 seconds")
+		duration := selectedChoice.value.(time.Duration)
+		return m, messages.ChangeDuration(duration, m.height, m.width)
+
 	case timer30Seconds:
-		log.Println("timer 30 seconds")
+		duration := selectedChoice.value.(time.Duration)
+		return m, messages.ChangeDuration(duration, m.height, m.width)
+
 	default:
-		log.Println("invalid option")
+		log.Println("unexpected choice id:", selectedChoice.id)
 	}
 
 	return m, cmd

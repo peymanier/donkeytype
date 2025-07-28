@@ -14,6 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mierlabs/donkeytype/messages"
+	"github.com/mierlabs/donkeytype/storage"
 )
 
 type keyMap struct {
@@ -104,16 +105,22 @@ type Opts struct {
 }
 
 func New(opts Opts) Model {
-	timer := timer.NewWithInterval(10*time.Second, 100*time.Millisecond)
+	if storage.Duration == 0 {
+		storage.Duration = 30 * time.Second
+	}
+
+	timer := timer.NewWithInterval(storage.Duration, 100*time.Millisecond)
 
 	cursor := cursor.New()
 	cursor.Focus()
 
-	wantedText := slices.Repeat(randomPassage(), 10)
+	if len(storage.Text) == 0 {
+		storage.Text = slices.Repeat(randomPassage(), 10)
+	}
 
 	return Model{
-		wantedText:  wantedText,
-		gottenText:  make([]rune, 0, len(wantedText)),
+		wantedText:  storage.Text,
+		gottenText:  make([]rune, 0, len(storage.Text)),
 		typingState: typingPending,
 		err:         nil,
 		width:       opts.Width,
