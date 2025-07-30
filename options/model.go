@@ -177,7 +177,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			isOptionFilterApplied := m.list.FilterState() == list.FilterApplied
 			isChoiceFilterApplied := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.FilterApplied
 
-			if !isOptionFilterApplied && !isChoiceFilterApplied {
+			isOptionFiltering := m.list.FilterState() == list.Filtering
+			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
+
+			if !isOptionFilterApplied && !isChoiceFilterApplied && !isOptionFiltering && !isChoiceFiltering {
 				if m.selectedOption != nil {
 					m.selectedOption = nil
 					return m, nil
@@ -203,6 +206,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.selectedOption != nil {
+		if m.selectedOption.list.FilterState() == list.FilterApplied {
+			m.selectedOption.list.AdditionalShortHelpKeys = func() []key.Binding {
+				if m.selectedOption.list.FilterState() == list.FilterApplied {
+					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+				}
+				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+			}
+			m.selectedOption.list.AdditionalFullHelpKeys = func() []key.Binding {
+				if m.list.FilterState() == list.FilterApplied {
+					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+				}
+				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+			}
+		}
 		m.selectedOption.list, cmd = m.selectedOption.list.Update(msg)
 		cmds = append(cmds, cmd)
 	} else {
