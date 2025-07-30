@@ -206,37 +206,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.selectedOption != nil {
-		if m.selectedOption.list.FilterState() == list.FilterApplied {
-			m.selectedOption.list.AdditionalShortHelpKeys = func() []key.Binding {
-				if m.selectedOption.list.FilterState() == list.FilterApplied {
-					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
-				}
-				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-			}
-			m.selectedOption.list.AdditionalFullHelpKeys = func() []key.Binding {
-				if m.list.FilterState() == list.FilterApplied {
-					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
-				}
-				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-			}
-		}
 		m.selectedOption.list, cmd = m.selectedOption.list.Update(msg)
 		cmds = append(cmds, cmd)
 	} else {
-		if m.list.FilterState() == list.FilterApplied {
-			m.list.AdditionalShortHelpKeys = func() []key.Binding {
-				if m.list.FilterState() == list.FilterApplied {
-					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
-				}
-				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-			}
-			m.list.AdditionalFullHelpKeys = func() []key.Binding {
-				if m.list.FilterState() == list.FilterApplied {
-					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
-				}
-				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
-			}
-		}
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
 	}
@@ -262,17 +234,23 @@ func setupOptionList() []list.Item {
 			choiceItem[j] = choice
 		}
 
-		list := list.New(choiceItem, delegate, 0, 0)
-		list.Title = "Option Choices"
-		list.DisableQuitKeybindings()
-		list.AdditionalShortHelpKeys = func() []key.Binding {
+		l := list.New(choiceItem, delegate, 0, 0)
+		l.Title = "Option Choices"
+		l.DisableQuitKeybindings()
+		l.AdditionalShortHelpKeys = func() []key.Binding {
+			if l.FilterState() == list.FilterApplied {
+				return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+			}
 			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 		}
-		list.AdditionalFullHelpKeys = func() []key.Binding {
+		l.AdditionalFullHelpKeys = func() []key.Binding {
+			if l.FilterState() == list.FilterApplied {
+				return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+			}
 			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 		}
 
-		opt.list = list
+		opt.list = l
 		items[i] = opt
 	}
 
@@ -282,17 +260,23 @@ func setupOptionList() []list.Item {
 func newOptionList(items []list.Item) list.Model {
 	delegate := list.NewDefaultDelegate()
 
-	list := list.New(items, delegate, 0, 0)
-	list.Title = "Options"
-	list.DisableQuitKeybindings()
-	list.AdditionalShortHelpKeys = func() []key.Binding {
+	l := list.New(items, delegate, 0, 0)
+	l.Title = "Options"
+	l.DisableQuitKeybindings()
+	l.AdditionalShortHelpKeys = func() []key.Binding {
+		if l.FilterState() == list.FilterApplied {
+			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+		}
 		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 	}
-	list.AdditionalFullHelpKeys = func() []key.Binding {
+	l.AdditionalFullHelpKeys = func() []key.Binding {
+		if l.FilterState() == list.FilterApplied {
+			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+		}
 		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 	}
 
-	return list
+	return l
 }
 
 func handleSelectOption(m Model) (Model, tea.Cmd) {
