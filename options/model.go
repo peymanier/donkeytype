@@ -223,6 +223,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.selectedOption.list, cmd = m.selectedOption.list.Update(msg)
 		cmds = append(cmds, cmd)
 	} else {
+		if m.list.FilterState() == list.FilterApplied {
+			m.list.AdditionalShortHelpKeys = func() []key.Binding {
+				if m.list.FilterState() == list.FilterApplied {
+					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+				}
+				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+			}
+			m.list.AdditionalFullHelpKeys = func() []key.Binding {
+				if m.list.FilterState() == list.FilterApplied {
+					return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+				}
+				return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+			}
+		}
 		m.list, cmd = m.list.Update(msg)
 		cmds = append(cmds, cmd)
 	}
