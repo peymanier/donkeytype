@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"strings"
 
-	"github.com/mierlabs/donkeytype/utils"
+	"github.com/peymanier/donkeytype/utils"
 )
 
 var passages = []string{

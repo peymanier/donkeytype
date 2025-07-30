@@ -2,9 +2,9 @@ package main
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mierlabs/donkeytype/messages"
-	"github.com/mierlabs/donkeytype/options"
-	"github.com/mierlabs/donkeytype/typing"
+	"github.com/peymanier/donkeytype/messages"
+	"github.com/peymanier/donkeytype/options"
+	"github.com/peymanier/donkeytype/typing"
 )
 
 type state int

@@ -12,9 +12,9 @@ import (
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mierlabs/donkeytype/messages"
-	"github.com/mierlabs/donkeytype/options"
-	"github.com/mierlabs/donkeytype/text"
+	"github.com/peymanier/donkeytype/messages"
+	"github.com/peymanier/donkeytype/options"
+	"github.com/peymanier/donkeytype/text"
 )
 
 type keyMap struct {

@@ -7,8 +7,8 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mierlabs/donkeytype/messages"
-	"github.com/mierlabs/donkeytype/text"
+	"github.com/peymanier/donkeytype/messages"
+	"github.com/peymanier/donkeytype/text"
 )
 
 type keyMap struct {

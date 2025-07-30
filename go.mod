@@ -1,4 +1,4 @@
-module github.com/mierlabs/donkeytype
+module github.com/peymanier/donkeytype
 
 go 1.24.4
 
