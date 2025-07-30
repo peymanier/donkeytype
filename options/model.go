@@ -157,9 +157,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	isOptionFiltering := m.list.FilterState() == list.Filtering
-	isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
-
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -177,7 +174,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		case key.Matches(msg, m.keys.Back):
-			if !isOptionFiltering && !isChoiceFiltering {
+			isOptionFilterApplied := m.list.FilterState() == list.FilterApplied
+			isChoiceFilterApplied := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.FilterApplied
+
+			if !isOptionFilterApplied && !isChoiceFilterApplied {
 				if m.selectedOption != nil {
 					m.selectedOption = nil
 					return m, nil
@@ -187,6 +187,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, m.keys.Select):
+			isOptionFiltering := m.list.FilterState() == list.Filtering
+			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
+
 			if !isOptionFiltering && !isChoiceFiltering {
 				if m.selectedOption != nil {
 					m, cmd = handleSelectChoice(m)
