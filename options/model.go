@@ -125,30 +125,6 @@ func New() Model {
 	}
 }
 
-type ChangeKeysMsg struct {
-	Height int
-	Width  int
-	Choice Choice
-}
-
-func ChangeKeys(choice Choice, height, width int) tea.Cmd {
-	return func() tea.Msg {
-		return ChangeKeysMsg{Choice: choice, Height: height, Width: width}
-	}
-}
-
-type ChangeDurationMsg struct {
-	Height int
-	Width  int
-	Choice Choice
-}
-
-func ChangeDuration(choice Choice, height, width int) tea.Cmd {
-	return func() tea.Msg {
-		return ChangeDurationMsg{Choice: choice, Height: height, Width: width}
-	}
-}
-
 func (m Model) Init() tea.Cmd {
 	return nil
 }
