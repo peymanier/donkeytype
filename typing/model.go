@@ -111,7 +111,15 @@ func New(opts Opts) Model {
 	cursor := cursor.New()
 	cursor.Focus()
 
-	wantedText := options.SelectedKeys.Value.([]rune)
+	selectedChoice := options.SelectedKeys
+
+	var wantedText []rune
+	if selectedChoice.ID == options.KeysDefault {
+		wantedText = options.SelectedKeys.Value.([]rune)
+	} else {
+		chars := options.SelectedKeys.Value.([]rune)
+		wantedText = text.RandomTextFromChars(chars)
+	}
 
 	return Model{
 		wantedText:  wantedText,

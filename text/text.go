@@ -61,3 +61,27 @@ func RemoveLastRune(r []rune) []rune {
 
 	return r[:len(r)-1]
 }
+
+func RandomTextFromChars(chars []rune) []rune {
+	var charset []rune
+
+	charPool := append(chars, ' ', ' ')
+	for range 200 {
+		randIdx := rand.Intn(len(charPool))
+		charset = append(charset, charPool[randIdx])
+	}
+
+	trimCharset := strings.Trim(string(charset), " ")
+	splitCharset := strings.FieldsSeq(trimCharset)
+
+	var result []string
+	for substr := range splitCharset {
+		if len(substr) < 4 {
+			continue
+		}
+
+		result = append(result, substr)
+	}
+
+	return []rune(strings.Join(result, " "))
+}
