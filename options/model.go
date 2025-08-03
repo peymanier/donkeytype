@@ -37,6 +37,11 @@ var keys = keyMap{
 	),
 }
 
+var additionalShortHelpKeys = []key.Binding{keys.Back, keys.Select}
+var additionalShortHelpKeysFilterApplied = []key.Binding{keys.Select}
+var additionalFullHelpKeys = []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+var additionalFullHelpKeysFilterApplied = []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+
 type id int
 
 const (
@@ -215,15 +220,15 @@ func setupOptionList() []list.Item {
 		l.DisableQuitKeybindings()
 		l.AdditionalShortHelpKeys = func() []key.Binding {
 			if l.FilterState() == list.FilterApplied {
-				return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+				return additionalShortHelpKeysFilterApplied
 			}
-			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+			return additionalShortHelpKeys
 		}
 		l.AdditionalFullHelpKeys = func() []key.Binding {
 			if l.FilterState() == list.FilterApplied {
-				return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+				return additionalFullHelpKeysFilterApplied
 			}
-			return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+			return additionalFullHelpKeys
 		}
 
 		opt.list = l
@@ -241,15 +246,15 @@ func newOptionList(items []list.Item) list.Model {
 	l.DisableQuitKeybindings()
 	l.AdditionalShortHelpKeys = func() []key.Binding {
 		if l.FilterState() == list.FilterApplied {
-			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+			return additionalShortHelpKeysFilterApplied
 		}
-		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+		return additionalShortHelpKeys
 	}
 	l.AdditionalFullHelpKeys = func() []key.Binding {
 		if l.FilterState() == list.FilterApplied {
-			return []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
+			return additionalFullHelpKeysFilterApplied
 		}
-		return []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
+		return additionalFullHelpKeys
 	}
 
 	return l
