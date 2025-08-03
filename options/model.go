@@ -2,10 +2,12 @@ package options
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/peymanier/donkeytype/messages"
 	"github.com/peymanier/donkeytype/text"
@@ -50,11 +52,13 @@ const (
 )
 
 type option struct {
-	id          id
-	title       string
-	description string
-	list        list.Model
-	choices     []Choice
+	id             id
+	title          string
+	description    string
+	list           list.Model
+	input          textinput.Model
+	choices        []Choice
+	selectedChoice *Choice
 }
 
 func (i option) Title() string       { return i.title }
@@ -82,6 +86,7 @@ type Choice struct {
 }
 
 func (c Choice) Title() string {
+	// modify this?
 	if c.ID == SelectedKeys.ID || c.ID == SelectedDuration.ID {
 		return c.title + " ✓"
 	}
@@ -105,7 +110,7 @@ var defaultDuration = Choice{ID: DurationDefault, title: "Default", Value: 10 * 
 var options = []option{
 	{id: keysID, title: "Choose Keys", choices: []Choice{
 		defaultKeys,
-		{ID: KeysCustom, title: "Custom", Value: []rune("something custom")},
+		{ID: KeysCustom, title: "Custom", Value: make([]rune, 0)},
 		{ID: KeysLeftMiddleRow, title: "Left Hand Middle Row", Value: []rune("asdf")},
 	}},
 	{id: durationID, title: "Change Duration", choices: []Choice{
@@ -147,6 +152,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.selectedOption != nil {
 			m.selectedOption.list.SetSize(msg.Width*4/5, msg.Height*4/5)
 		}
+	case ShowInputMsg:
+		if m.selectedOption == nil {
+			panic("selected option can not be nil when setting custom choice")
+		}
+		m.selectedOption.input = textinput.New()
+		m.selectedOption.input.Focus()
 
 	case tea.KeyMsg:
 		switch {
@@ -176,6 +187,27 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			if !isOptionFiltering && !isChoiceFiltering {
 				if m.selectedOption != nil {
+					if m.selectedOption.input.Focused() {
+						if m.selectedOption.selectedChoice == nil {
+							panic("selected choice must not be nil when setting input value")
+						}
+						if m.selectedOption.selectedChoice.ID == KeysCustom {
+							m.selectedOption.selectedChoice.Value = []rune(m.selectedOption.input.Value())
+							m.selectedOption.input.Reset()
+							m.selectedOption.input.Blur()
+							return m, ChangeKeys(*m.selectedOption.selectedChoice, m.height, m.width)
+
+						} else if m.selectedOption.selectedChoice.ID == DurationCustom {
+							seconds, err := strconv.Atoi(m.selectedOption.input.Value())
+							if err != nil {
+								log.Println(err)
+							}
+							m.selectedOption.selectedChoice.Value = time.Duration(seconds) * time.Second
+							m.selectedOption.input.Reset()
+							m.selectedOption.input.Blur()
+							return m, ChangeDuration(*m.selectedOption.selectedChoice, m.height, m.width)
+						}
+					}
 					m, cmd = handleSelectChoice(m)
 					cmds = append(cmds, cmd)
 				} else {
@@ -187,6 +219,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if m.selectedOption != nil {
+		if m.selectedOption.input.Focused() {
+			m.selectedOption.input, cmd = m.selectedOption.input.Update(msg)
+			cmds = append(cmds, cmd)
+		}
 		m.selectedOption.list, cmd = m.selectedOption.list.Update(msg)
 		cmds = append(cmds, cmd)
 	} else {
@@ -199,6 +235,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	if m.selectedOption != nil {
+		if m.selectedOption.input.Focused() {
+			return m.selectedOption.input.View()
+		}
 		return m.selectedOption.list.View()
 	}
 
@@ -296,12 +335,14 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 		panic("could not perform type assertion on list item (choice)")
 	}
 
+	m.selectedOption.selectedChoice = &selectedChoice
+
 	switch selectedChoice.ID {
 	case KeysDefault:
 		return m, ChangeKeys(selectedChoice, m.height, m.width)
 
 	case KeysCustom:
-		return m, ChangeKeys(selectedChoice, m.height, m.width)
+		return m, ShowInput(selectedChoice, m.height, m.width)
 
 	case KeysLeftMiddleRow:
 		return m, ChangeKeys(selectedChoice, m.height, m.width)
@@ -310,7 +351,7 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 		return m, ChangeDuration(selectedChoice, m.height, m.width)
 
 	case DurationCustom:
-		return m, ChangeDuration(selectedChoice, m.height, m.width)
+		return m, ShowInput(selectedChoice, m.height, m.width)
 
 	case Duration15Seconds:
 		return m, ChangeDuration(selectedChoice, m.height, m.width)

@@ -25,3 +25,15 @@ func ChangeDuration(choice Choice, height, width int) tea.Cmd {
 		return ChangeDurationMsg{Choice: choice, Height: height, Width: width}
 	}
 }
+
+type ShowInputMsg struct {
+	Height int
+	Width  int
+	Choice Choice
+}
+
+func ShowInput(choice Choice, height, width int) tea.Cmd {
+	return func() tea.Msg {
+		return ShowInputMsg{Choice: choice, Height: height, Width: width}
+	}
+}
