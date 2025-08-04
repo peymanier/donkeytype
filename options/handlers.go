@@ -91,7 +91,10 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 	case DurationCustom:
 		seconds, err := strconv.Atoi(m.selectedOption.input.Value())
 		if err != nil {
-			log.Println(err)
+			m.selectedOption.input.Reset()
+			m.selectedOption.input.Blur()
+
+			return m, nil
 		}
 
 		m.selectedOption.selectedChoice.Value = time.Duration(seconds) * time.Second
