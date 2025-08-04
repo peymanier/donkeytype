@@ -6,6 +6,7 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/peymanier/donkeytype/messages"
 )
 
 func handleSelectOption(m Model) (Model, tea.Cmd) {
@@ -48,25 +49,25 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 
 	switch selectedChoice.ID {
 	case KeysDefault:
-		return m, ChangeKeys(selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	case KeysCustom:
 		return m, ShowInput(selectedChoice, m.height, m.width)
 
 	case KeysLeftMiddleRow:
-		return m, ChangeKeys(selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	case DurationDefault:
-		return m, ChangeDuration(selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	case DurationCustom:
-		return m, ShowInput(selectedChoice, m.height, m.width)
+		return m, tea.Batch(ShowInput(selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	case Duration15Seconds:
-		return m, ChangeDuration(selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	case Duration30Seconds:
-		return m, ChangeDuration(selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	default:
 		log.Println("unexpected choice id:", selectedChoice.ID)
@@ -86,7 +87,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
-		return m, ChangeKeys(*m.selectedOption.selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeKeys(*m.selectedOption.selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	case DurationCustom:
 		seconds, err := strconv.Atoi(m.selectedOption.input.Value())
@@ -101,7 +102,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
-		return m, ChangeDuration(*m.selectedOption.selectedChoice, m.height, m.width)
+		return m, tea.Batch(ChangeDuration(*m.selectedOption.selectedChoice, m.height, m.width), messages.ToggleOptions)
 
 	default:
 		panic("invalid choice id")
