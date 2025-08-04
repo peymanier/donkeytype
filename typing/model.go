@@ -75,8 +75,7 @@ type timeData struct {
 }
 
 type cursorData struct {
-	cursor   cursor.Model
-	position int
+	cursor cursor.Model
 }
 
 type stats struct {
@@ -144,12 +143,7 @@ func New(opts Opts) Model {
 			timerState: timerStop,
 		},
 		cursorData: cursorData{
-			cursor:   cursor,
-			position: 0,
-		},
-		stats: stats{
-			wpm:      0,
-			accuracy: 0,
+			cursor: cursor,
 		},
 		keys: keys,
 		help: help.New(),
@@ -171,7 +165,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help.Width = msg.Width
 
 	case timer.TickMsg:
-		m.updateStats()
+		if m.typingState == typingInProgress {
+			m.updateStats()
+		}
 		m.timer, cmd = m.timer.Update(msg)
 		return m, cmd
 
@@ -200,18 +196,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyBackspace:
 			m.gottenText = text.RemoveLastRune(m.gottenText)
-			if len(m.gottenText) != 0 {
-				m.position--
-			}
 
 		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {
 				return m, nil
 			}
 
-			m = m.updateMistakes(msg.Runes)
-			m.gottenText = append(m.gottenText, msg.Runes...)
-			m.position++
+			if m.typingState == typingInProgress {
+				m = m.updateMistakes(msg.Runes)
+			}
+			if len(m.gottenText)+len(msg.Runes) <= len(m.wantedText) {
+				m.gottenText = append(m.gottenText, msg.Runes...)
+			}
 			m.updateTypingState()
 
 			if m.typingState == typingInProgress && m.timerState == timerStop {
@@ -282,10 +278,10 @@ func (m Model) getText() string {
 	for i, c := range m.wantedText {
 		var styledChar string
 
-		if i == m.position {
+		if i == len(m.gottenText) {
 			m.cursor.SetChar(string(c))
 			styledChar = m.cursor.View()
-		} else if i >= len(m.gottenText) {
+		} else if i > len(m.gottenText) {
 			styledChar = normalRuneStyle.Render(string(c))
 		} else {
 			if c == m.gottenText[i] {
