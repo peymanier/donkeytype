@@ -36,7 +36,7 @@ func (m Model) newStatStyle() lipgloss.Style {
 	width := m.width * 4 / 5
 
 	return lipgloss.NewStyle().
-		Width(width * 1 / 3).
+		Width(width * 1 / 4).
 		PaddingLeft(4).
 		PaddingRight(4)
 }

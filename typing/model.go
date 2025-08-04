@@ -82,6 +82,7 @@ type cursorData struct {
 type stats struct {
 	wpm      int
 	accuracy int
+	mistakes int
 }
 
 type Model struct {
@@ -208,6 +209,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
+			m = m.updateMistakes(msg.Runes)
 			m.gottenText = append(m.gottenText, msg.Runes...)
 			m.position++
 			m.updateTypingState()
@@ -255,6 +257,7 @@ func (m Model) viewHeader() string {
 			lipgloss.Center,
 			statStyle.Render(fmt.Sprintf("time: %5s", m.timer.View())),
 			statStyle.Render(fmt.Sprintf("wpm: %3d", m.wpm)),
+			statStyle.Render(fmt.Sprintf("mistakes: %2d", m.mistakes)),
 			statStyle.Render(fmt.Sprintf("accuracy: %3d%%", m.accuracy)),
 		),
 	)
@@ -322,4 +325,15 @@ func (m *Model) updateStats() {
 
 	m.wpm = m.calculateWPM()
 	m.accuracy = m.calculateAccuracy()
+}
+
+func (m Model) updateMistakes(gottenRunes []rune) Model {
+	for i, gottenRune := range gottenRunes {
+		wantedRune := m.wantedText[len(m.gottenText)+i]
+		if wantedRune != gottenRune {
+			m.mistakes++
+		}
+	}
+
+	return m
 }
