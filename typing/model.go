@@ -115,9 +115,16 @@ func New(opts Opts) Model {
 
 	var wantedText []rune
 	if selectedChoice.ID == options.KeysDefault {
-		wantedText = options.SelectedKeys.Value.([]rune)
+		fn, ok := options.SelectedKeys.Value.(func() []rune)
+		if !ok {
+			panic("badly configured")
+		}
+		wantedText = fn()
 	} else {
-		chars := options.SelectedKeys.Value.([]rune)
+		chars, ok := options.SelectedKeys.Value.([]rune)
+		if !ok {
+			panic("badly configured")
+		}
 		wantedText = text.RandomTextFromChars(chars)
 	}
 
@@ -183,8 +190,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
-		// case key.Matches(msg, m.keys.Help):
-		// 	m.help.ShowAll = !m.help.ShowAll
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, messages.ToggleOptions
 		case key.Matches(msg, m.keys.Restart):
