@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/peymanier/donkeytype/messages"
 	"github.com/peymanier/donkeytype/text"
 )
 
@@ -84,7 +83,6 @@ type Choice struct {
 }
 
 func (c Choice) Title() string {
-	// modify this?
 	if c.ID == SelectedKeys.ID || c.ID == SelectedDuration.ID {
 		return c.title + " ✓"
 	}
@@ -135,149 +133,4 @@ func New() Model {
 
 func (m Model) Init() tea.Cmd {
 	return nil
-}
-
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-	var cmds []tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
-
-		m.list.SetSize(msg.Width*4/5, msg.Height*4/5)
-		if m.selectedOption != nil {
-			m.selectedOption.list.SetSize(msg.Width*4/5, msg.Height*4/5)
-		}
-	case ShowInputMsg:
-		if m.selectedOption == nil {
-			panic("selected option can not be nil when setting custom choice")
-		}
-		m.selectedOption.input = textinput.New()
-		m.selectedOption.input.Focus()
-
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.Quit):
-			return m, tea.Quit
-		case key.Matches(msg, m.keys.ToggleOptions):
-			return m, messages.ToggleOptions
-		case key.Matches(msg, m.keys.Back):
-			isOptionFilterApplied := m.list.FilterState() == list.FilterApplied
-			isChoiceFilterApplied := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.FilterApplied
-
-			isOptionFiltering := m.list.FilterState() == list.Filtering
-			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
-
-			if !isOptionFilterApplied && !isChoiceFilterApplied && !isOptionFiltering && !isChoiceFiltering {
-				if m.selectedOption != nil {
-					m.selectedOption = nil
-					return m, nil
-				} else {
-					return m, messages.ToggleOptions
-				}
-			}
-
-		case key.Matches(msg, m.keys.Select):
-			isOptionFiltering := m.list.FilterState() == list.Filtering
-			isChoiceFiltering := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.Filtering
-
-			if !isOptionFiltering && !isChoiceFiltering {
-				if m.selectedOption != nil {
-					if m.selectedOption.input.Focused() {
-						m, cmd = handleCustomChoiceSelect(m)
-						return m, cmd
-					}
-
-					m, cmd = handleSelectChoice(m)
-					cmds = append(cmds, cmd)
-
-				} else {
-					m, cmd = handleSelectOption(m)
-					cmds = append(cmds, cmd)
-				}
-			}
-		}
-	}
-
-	if m.selectedOption != nil {
-		if m.selectedOption.input.Focused() {
-			m.selectedOption.input, cmd = m.selectedOption.input.Update(msg)
-			cmds = append(cmds, cmd)
-		}
-		m.selectedOption.list, cmd = m.selectedOption.list.Update(msg)
-		cmds = append(cmds, cmd)
-	} else {
-		m.list, cmd = m.list.Update(msg)
-		cmds = append(cmds, cmd)
-	}
-
-	return m, tea.Batch(cmds...)
-}
-
-func (m Model) View() string {
-	if m.selectedOption != nil {
-		if m.selectedOption.input.Focused() {
-			return m.selectedOption.input.View()
-		}
-		return m.selectedOption.list.View()
-	}
-
-	return m.list.View()
-}
-
-func setupOptionList() []list.Item {
-	delegate := list.NewDefaultDelegate()
-
-	items := make([]list.Item, len(options))
-	for i, opt := range options {
-		choiceItem := make([]list.Item, len(opt.choices))
-		for j, choice := range opt.choices {
-			choiceItem[j] = choice
-		}
-
-		l := list.New(choiceItem, delegate, 0, 0)
-		l.Title = "Option Choices"
-		l.DisableQuitKeybindings()
-		l.AdditionalShortHelpKeys = func() []key.Binding {
-			if l.FilterState() == list.FilterApplied {
-				return additionalShortHelpKeysFilterApplied
-			}
-			return additionalShortHelpKeys
-		}
-		l.AdditionalFullHelpKeys = func() []key.Binding {
-			if l.FilterState() == list.FilterApplied {
-				return additionalFullHelpKeysFilterApplied
-			}
-			return additionalFullHelpKeys
-		}
-
-		opt.list = l
-		items[i] = opt
-	}
-
-	return items
-}
-
-func newOptionList(items []list.Item) list.Model {
-	delegate := list.NewDefaultDelegate()
-
-	l := list.New(items, delegate, 0, 0)
-	l.Title = "Options"
-	l.DisableQuitKeybindings()
-	l.AdditionalShortHelpKeys = func() []key.Binding {
-		if l.FilterState() == list.FilterApplied {
-			return additionalShortHelpKeysFilterApplied
-		}
-		return additionalShortHelpKeys
-	}
-	l.AdditionalFullHelpKeys = func() []key.Binding {
-		if l.FilterState() == list.FilterApplied {
-			return additionalFullHelpKeysFilterApplied
-		}
-		return additionalFullHelpKeys
-	}
-
-	return l
 }
