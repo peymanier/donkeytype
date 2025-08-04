@@ -199,7 +199,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.Type {
 		case tea.KeyBackspace:
 			m.gottenText = text.RemoveLastRune(m.gottenText)
-			m.position--
+			if len(m.gottenText) != 0 {
+				m.position--
+			}
 
 		case tea.KeyRunes, tea.KeySpace:
 			if len(m.gottenText) >= len(m.wantedText) {
