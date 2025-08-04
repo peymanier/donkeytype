@@ -6,7 +6,6 @@ import (
 	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/peymanier/donkeytype/messages"
 )
 
 func handleSelectOption(m Model) (Model, tea.Cmd) {
@@ -49,25 +48,25 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 
 	switch selectedChoice.ID {
 	case KeysDefault:
-		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), Toggle(&m))
 
 	case KeysCustom:
 		return m, ShowInput(selectedChoice, m.height, m.width)
 
 	case KeysLeftMiddleRow:
-		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), Toggle(&m))
 
 	case DurationDefault:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), Toggle(&m))
 
 	case DurationCustom:
-		return m, tea.Batch(ShowInput(selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, ShowInput(selectedChoice, m.height, m.width)
 
 	case Duration15Seconds:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), Toggle(&m))
 
 	case Duration30Seconds:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), Toggle(&m))
 
 	default:
 		log.Println("unexpected choice id:", selectedChoice.ID)
@@ -77,8 +76,8 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 }
 
 func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
-	if m.selectedOption.selectedChoice == nil {
-		panic("selected choice must not be nil when setting input value")
+	if m.selectedOption == nil || m.selectedOption.selectedChoice == nil {
+		panic("badly configured")
 	}
 
 	switch m.selectedOption.selectedChoice.ID {
@@ -87,7 +86,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
-		return m, tea.Batch(ChangeKeys(*m.selectedOption.selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeKeys(*m.selectedOption.selectedChoice, m.height, m.width), Toggle(&m))
 
 	case DurationCustom:
 		seconds, err := strconv.Atoi(m.selectedOption.input.Value())
@@ -102,7 +101,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
-		return m, tea.Batch(ChangeDuration(*m.selectedOption.selectedChoice, m.height, m.width), messages.ToggleOptions)
+		return m, tea.Batch(ChangeDuration(*m.selectedOption.selectedChoice, m.height, m.width), Toggle(&m))
 
 	default:
 		panic("invalid choice id")

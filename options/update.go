@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/peymanier/donkeytype/messages"
 )
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -33,7 +32,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.ToggleOptions):
-			return m, messages.ToggleOptions
+			return m, Toggle(nil)
 		case key.Matches(msg, m.keys.Back):
 			isOptionFilterApplied := m.list.FilterState() == list.FilterApplied
 			isChoiceFilterApplied := m.selectedOption != nil && m.selectedOption.list.FilterState() == list.FilterApplied
@@ -46,7 +45,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.selectedOption = nil
 					return m, nil
 				} else {
-					return m, messages.ToggleOptions
+					return m, Toggle(nil)
 				}
 			}
 

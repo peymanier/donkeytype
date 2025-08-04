@@ -2,6 +2,18 @@ package options
 
 import tea "github.com/charmbracelet/bubbletea"
 
+type ToggleMsg struct{}
+
+func Toggle(m *Model) tea.Cmd {
+	if m != nil {
+		m.selectedOption = nil
+	}
+
+	return func() tea.Msg {
+		return ToggleMsg{}
+	}
+}
+
 type ChangeKeysMsg struct {
 	Height int
 	Width  int

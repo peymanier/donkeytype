@@ -57,7 +57,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.typing = typing.New(typing.Opts{Width: msg.Width, Height: msg.Height})
 		return m, nil
 
-	case messages.ToggleOptionsMsg:
+	case options.ToggleMsg:
 		if m.state == typingView {
 			m.state = optionsView
 		} else {

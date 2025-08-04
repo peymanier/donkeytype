@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/peymanier/donkeytype/messages"
+	"github.com/peymanier/donkeytype/options"
 	"github.com/peymanier/donkeytype/text"
 )
 
@@ -46,7 +47,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.ToggleOptions):
-			return m, messages.ToggleOptions
+			return m, options.Toggle(nil)
 		case key.Matches(msg, m.keys.Restart):
 			return m, messages.Restart(m.height, m.width)
 		}
