@@ -125,7 +125,7 @@ func New(opts Opts) Model {
 		if !ok {
 			panic("badly configured")
 		}
-		wantedText = text.RandomTextFromChars(chars, 40)
+		wantedText = text.RandomTextFromChars(text.UniqueRunes(chars), 40)
 	}
 
 	return Model{

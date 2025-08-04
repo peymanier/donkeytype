@@ -84,3 +84,19 @@ func RandomTextFromChars(chars []rune, count int) []rune {
 
 	return []rune(strings.Join(res, " "))
 }
+
+func UniqueRunes(chars []rune) []rune {
+	seen := make(map[rune]struct{})
+	var uniques []rune
+
+	for _, ch := range chars {
+		if _, ok := seen[ch]; ok {
+			continue
+		}
+
+		seen[ch] = struct{}{}
+		uniques = append(uniques, ch)
+	}
+
+	return uniques
+}
