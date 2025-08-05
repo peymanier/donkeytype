@@ -24,7 +24,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help.Width = msg.Width
 
 	case timer.TickMsg:
-		if m.typingState == typingInProgress {
+		if m.TypingState == TypingInProgress {
 			m = m.updateStats()
 		}
 		m.timer, cmd = m.timer.Update(msg)
@@ -61,7 +61,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 
-			if m.typingState == typingInProgress {
+			if m.TypingState == TypingInProgress {
 				m = m.updateMistakes(msg.Runes)
 			}
 			if len(m.gottenText)+len(msg.Runes) <= len(m.wantedText) {
@@ -69,7 +69,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			m = m.updateTypingState()
 
-			if m.typingState == typingInProgress && m.timerState == timerStop {
+			if m.TypingState == TypingInProgress && m.timerState == timerStop {
 				cmd = m.timer.Init()
 				cmds = append(cmds, cmd)
 				m.timerState = timerRun
@@ -90,8 +90,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) updateTypingState() Model {
 	textFinished := len(m.gottenText) >= len(m.wantedText)
-	if m.typingState != typingFinish && (textFinished || m.timer.Timedout()) {
-		m.typingState = typingFinish
+	if m.TypingState != TypingFinish && (textFinished || m.timer.Timedout()) {
+		m.TypingState = TypingFinish
 		m.timerState = timerTimeout
 
 		endTime := time.Now()
@@ -100,8 +100,8 @@ func (m Model) updateTypingState() Model {
 	}
 
 	textStarted := len(m.gottenText) > 0
-	if m.typingState == typingPending && textStarted {
-		m.typingState = typingInProgress
+	if m.TypingState == TypingPending && textStarted {
+		m.TypingState = TypingInProgress
 		m.cursor.SetMode(cursor.CursorStatic)
 	}
 
@@ -109,7 +109,7 @@ func (m Model) updateTypingState() Model {
 }
 
 func (m Model) updateStats() Model {
-	if m.typingState != typingInProgress {
+	if m.TypingState != TypingInProgress {
 		return m
 	}
 

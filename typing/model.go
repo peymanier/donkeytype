@@ -47,9 +47,9 @@ var keys = keyMap{
 type typingState int
 
 const (
-	typingPending typingState = iota
-	typingInProgress
-	typingFinish
+	TypingPending typingState = iota
+	TypingInProgress
+	TypingFinish
 )
 
 type timerState int
@@ -82,7 +82,7 @@ type stats struct {
 type Model struct {
 	wantedText  []rune
 	gottenText  []rune
-	typingState typingState
+	TypingState typingState
 	err         error
 	width       int
 	height      int
@@ -126,7 +126,7 @@ func New(opts Opts) Model {
 	return Model{
 		wantedText:  wantedText,
 		gottenText:  make([]rune, 0, len(wantedText)),
-		typingState: typingPending,
+		TypingState: TypingPending,
 		err:         nil,
 		width:       opts.Width,
 		height:      opts.Height,

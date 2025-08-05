@@ -56,6 +56,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case timer.TickMsg:
+		if m.typing.TypingState != typing.TypingInProgress {
+			return m, nil
+		}
+
 		newTyping, newCmd := m.typing.Update(msg)
 		typing, ok := newTyping.(typing.Model)
 		if !ok {
