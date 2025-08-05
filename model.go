@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/peymanier/donkeytype/messages"
 	"github.com/peymanier/donkeytype/options"
@@ -52,6 +53,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.options = options
+		return m, nil
+
+	case timer.TickMsg:
+		newTyping, newCmd := m.typing.Update(msg)
+		typing, ok := newTyping.(typing.Model)
+		if !ok {
+			panic("could not perform type assertion on typing model")
+		}
+
+		m.typing = typing
+		cmd = newCmd
+		return m, cmd
 
 	case messages.RestartMsg:
 		m.typing = typing.New(typing.Opts{Width: msg.Width, Height: msg.Height})
