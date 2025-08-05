@@ -39,6 +39,12 @@ func (m Model) viewHeader() string {
 
 func (m Model) viewBody() string {
 	bodyStyle := m.newBodyStyle()
+
+	if m.TypingState == TypingFinish {
+		duration := m.endTime.Sub(*m.startTime)
+		return bodyStyle.Render(fmt.Sprintf("Duration: %.2fs", duration.Seconds()))
+	}
+
 	return bodyStyle.Render(m.getText())
 }
 

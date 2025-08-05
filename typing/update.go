@@ -103,6 +103,9 @@ func (m Model) updateTypingState() Model {
 	if m.TypingState == TypingPending && textStarted {
 		m.TypingState = TypingInProgress
 		m.cursor.SetMode(cursor.CursorStatic)
+
+		startTime := time.Now()
+		m.startTime = &startTime
 	}
 
 	return m
@@ -137,7 +140,7 @@ func (m Model) calculateWPM() int {
 		endTime = time.Now()
 	}
 
-	duration := endTime.Sub(m.startTime).Minutes()
+	duration := endTime.Sub(*m.startTime).Minutes()
 	correctCount := m.calculateCorrectCount()
 	wpm := float64(correctCount) / 5.0 / duration
 	return int(wpm)

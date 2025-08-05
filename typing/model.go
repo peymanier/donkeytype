@@ -63,7 +63,7 @@ const (
 type errMsg error
 
 type timeData struct {
-	startTime  time.Time
+	startTime  *time.Time
 	endTime    *time.Time
 	timer      timer.Model
 	timerState timerState
@@ -132,8 +132,6 @@ func New(opts Opts) Model {
 		height:      opts.Height,
 		styles:      defaultStyles(),
 		timeData: timeData{
-			startTime:  time.Now(),
-			endTime:    nil,
 			timer:      timer,
 			timerState: timerStop,
 		},
