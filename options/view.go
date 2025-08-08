@@ -3,22 +3,23 @@ package options
 import "github.com/charmbracelet/lipgloss"
 
 func (m Model) View() string {
-
 	if m.selectedOption != nil {
 		if m.selectedOption.input.Focused() {
 			return m.selectedOption.input.View()
 		}
 
-		list1Style, list2Style := m.newDoubleListStyle()
+		leftListStyle := m.defaultStyles().leftListstyle
+		rightListStyle := m.defaultStyles().rightListStyle
+
 		m.list.SetShowHelp(false)
 
 		return lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			list1Style.Render(m.list.View()),
-			list2Style.Render(m.selectedOption.list.View()),
+			leftListStyle.Render(m.list.View()),
+			rightListStyle.Render(m.selectedOption.list.View()),
 		)
 	}
 
-	listStyle := m.newListStyle()
+	listStyle := m.defaultStyles().listStyle
 	return listStyle.Render(m.list.View())
 }
