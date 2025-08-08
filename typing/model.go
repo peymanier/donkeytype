@@ -86,7 +86,6 @@ type Model struct {
 	err         error
 	width       int
 	height      int
-	styles      *styles
 	timeData
 	cursorData
 	stats
@@ -130,7 +129,6 @@ func New(opts Opts) Model {
 		err:         nil,
 		width:       opts.Width,
 		height:      opts.Height,
-		styles:      defaultStyles(),
 		timeData: timeData{
 			timer:      timer,
 			timerState: timerStop,
