@@ -96,6 +96,7 @@ type Model struct {
 	options        []option
 	selectedOption *option
 	keys           keyMap
+	styles         *styles
 	width          int
 	height         int
 }
@@ -128,6 +129,7 @@ func New() Model {
 		list:    list,
 		options: options,
 		keys:    keys,
+		styles:  defaultStyles(),
 	}
 }
 
