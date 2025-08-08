@@ -10,13 +10,24 @@ func (m Model) View() string {
 
 		leftListStyle := m.defaultStyles().leftListstyle
 		rightListStyle := m.defaultStyles().rightListStyle
+		helpStyle := m.defaultStyles().helpStyle
 
 		m.list.SetShowHelp(false)
+		m.selectedOption.list.SetShowHelp(false)
 
-		return lipgloss.JoinHorizontal(
+		choiceList := m.selectedOption.list
+		helpView := choiceList.Help.View(choiceList)
+
+		content := lipgloss.JoinHorizontal(
 			lipgloss.Top,
 			leftListStyle.Render(m.list.View()),
 			rightListStyle.Render(m.selectedOption.list.View()),
+		)
+
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			content,
+			helpStyle.Render(helpView),
 		)
 	}
 

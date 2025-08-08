@@ -6,6 +6,7 @@ type styles struct {
 	listStyle      lipgloss.Style
 	leftListstyle  lipgloss.Style
 	rightListStyle lipgloss.Style
+	helpStyle      lipgloss.Style
 }
 
 func (m Model) defaultStyles() *styles {
@@ -27,9 +28,15 @@ func (m Model) defaultStyles() *styles {
 		Width(width / 2).
 		Padding(4)
 
+	helpStyle := lipgloss.NewStyle().
+		Width(width).
+		Height(height / 5).
+		PaddingLeft(4)
+
 	return &styles{
 		listStyle:      listStyle,
 		leftListstyle:  leftListStyle,
 		rightListStyle: rightListStyle,
+		helpStyle:      helpStyle,
 	}
 }
