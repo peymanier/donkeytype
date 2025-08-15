@@ -16,16 +16,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 
-		m.list.SetSize(msg.Width*4/5, msg.Height*4/5)
-		if m.selectedOption != nil {
-			m.selectedOption.list.SetSize(msg.Width*4/5, msg.Height*4/5)
-		}
+		return m, nil
+
 	case ShowInputMsg:
 		if m.selectedOption == nil {
 			panic("selected option can not be nil when setting custom choice")
 		}
 		m.selectedOption.input = textinput.New()
 		m.selectedOption.input.Focus()
+
+		return m, nil
 
 	case tea.KeyMsg:
 		switch {

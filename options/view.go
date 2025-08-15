@@ -17,6 +17,13 @@ func (m Model) View() string {
 
 		choiceList := m.selectedOption.list
 		helpView := choiceList.Help.View(choiceList)
+		helpView = helpStyle.Render(helpView)
+		helpHeight := lipgloss.Height(helpView)
+
+		m.list.SetSize(m.width*2/3, m.height-16-helpHeight)
+		if m.selectedOption != nil {
+			m.selectedOption.list.SetSize(m.width*2/3, m.height-16-helpHeight)
+		}
 
 		content := lipgloss.JoinHorizontal(
 			lipgloss.Top,
@@ -30,6 +37,8 @@ func (m Model) View() string {
 			helpStyle.Render(helpView),
 		)
 	}
+
+	m.list.SetSize(m.width/2, m.height-8)
 
 	listStyle := m.defaultStyles().listStyle
 	return listStyle.Render(m.list.View())

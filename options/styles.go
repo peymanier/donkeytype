@@ -10,28 +10,17 @@ type styles struct {
 }
 
 func (m Model) defaultStyles() *styles {
-	width := m.width * 4 / 5
-	height := m.height * 4 / 5
-
 	listStyle := lipgloss.NewStyle().
-		Height(height).
-		Width(width).
 		Padding(4)
 
 	leftListStyle := lipgloss.NewStyle().
-		Height(height / 2).
-		Width(width / 2).
 		Padding(4)
 
 	rightListStyle := lipgloss.NewStyle().
-		Height(height / 2).
-		Width(width / 2).
 		Padding(4)
 
 	helpStyle := lipgloss.NewStyle().
-		Width(width).
-		Height(height / 5).
-		PaddingLeft(4)
+		Padding(4, 0, 0, 3)
 
 	return &styles{
 		listStyle:      listStyle,
