@@ -4,7 +4,7 @@ import "github.com/charmbracelet/lipgloss"
 
 func (m Model) View() string {
 	var (
-		availWidth  = m.width * 2 / 3
+		availWidth  = m.width
 		availHeight = m.height - 8
 	)
 
