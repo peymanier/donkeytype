@@ -117,6 +117,28 @@ var options = []option{
 	}},
 }
 
+func newOptionList(items []list.Item) list.Model {
+	delegate := list.NewDefaultDelegate()
+
+	l := list.New(items, delegate, 0, 0)
+	l.Title = "Options"
+	l.DisableQuitKeybindings()
+	l.AdditionalShortHelpKeys = func() []key.Binding {
+		if l.FilterState() == list.FilterApplied {
+			return additionalShortHelpKeysFilterApplied
+		}
+		return additionalShortHelpKeys
+	}
+	l.AdditionalFullHelpKeys = func() []key.Binding {
+		if l.FilterState() == list.FilterApplied {
+			return additionalFullHelpKeysFilterApplied
+		}
+		return additionalFullHelpKeys
+	}
+
+	return l
+}
+
 var SelectedKeys = defaultKeys
 var SelectedDuration = defaultDuration
 
