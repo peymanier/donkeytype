@@ -20,7 +20,7 @@ func (m Model) defaultStyles() *styles {
 		Padding(4)
 
 	helpStyle := lipgloss.NewStyle().
-		Padding(4, 0, 0, 3)
+		Padding(4, 4, 4, 6)
 
 	return &styles{
 		listStyle:      listStyle,

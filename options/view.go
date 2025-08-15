@@ -3,6 +3,11 @@ package options
 import "github.com/charmbracelet/lipgloss"
 
 func (m Model) View() string {
+	var (
+		availWidth  = m.width * 2 / 3
+		availHeight = m.height - 8
+	)
+
 	if m.selectedOption != nil {
 		if m.selectedOption.input.Focused() {
 			return m.selectedOption.input.View()
@@ -20,9 +25,9 @@ func (m Model) View() string {
 		helpView = helpStyle.Render(helpView)
 		helpHeight := lipgloss.Height(helpView)
 
-		m.list.SetSize(m.width*2/3, m.height-16-helpHeight)
+		m.list.SetSize(availWidth, availHeight-helpHeight)
 		if m.selectedOption != nil {
-			m.selectedOption.list.SetSize(m.width*2/3, m.height-16-helpHeight)
+			m.selectedOption.list.SetSize(availWidth, availHeight-helpHeight)
 		}
 
 		content := lipgloss.JoinHorizontal(
@@ -34,11 +39,11 @@ func (m Model) View() string {
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			content,
-			helpStyle.Render(helpView),
+			helpView,
 		)
 	}
 
-	m.list.SetSize(m.width/2, m.height-8)
+	m.list.SetSize(availWidth, availHeight)
 
 	listStyle := m.defaultStyles().listStyle
 	return listStyle.Render(m.list.View())
