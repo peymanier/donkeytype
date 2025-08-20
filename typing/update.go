@@ -49,7 +49,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.ToggleOptions):
 			return m, options.Toggle(nil)
 		case key.Matches(msg, m.keys.Restart):
-			return m, messages.Restart(m.height, m.width)
+			return m, messages.Restart(m.width, m.height)
 		}
 
 		switch msg.Type {

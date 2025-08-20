@@ -48,25 +48,25 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 
 	switch selectedChoice.ID {
 	case KeysDefault:
-		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
 
 	case KeysCustom:
-		return m, ShowInput(selectedChoice, m.height, m.width)
+		return m, ShowInput(selectedChoice, m.width, m.height)
 
 	case KeysLeftMiddleRow:
-		return m, tea.Batch(ChangeKeys(selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
 
 	case DurationDefault:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
 
 	case DurationCustom:
-		return m, ShowInput(selectedChoice, m.height, m.width)
+		return m, ShowInput(selectedChoice, m.width, m.height)
 
 	case Duration15Seconds:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
 
 	case Duration30Seconds:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
 
 	default:
 		log.Println("unexpected choice id:", selectedChoice.ID)
@@ -86,7 +86,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
-		return m, tea.Batch(ChangeKeys(*m.selectedOption.selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeKeys(*m.selectedOption.selectedChoice, m.width, m.height), Toggle(&m))
 
 	case DurationCustom:
 		seconds, err := strconv.Atoi(m.selectedOption.input.Value())
@@ -101,7 +101,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
-		return m, tea.Batch(ChangeDuration(*m.selectedOption.selectedChoice, m.height, m.width), Toggle(&m))
+		return m, tea.Batch(ChangeDuration(*m.selectedOption.selectedChoice, m.width, m.height), Toggle(&m))
 
 	default:
 		panic("invalid choice id")

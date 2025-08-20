@@ -5,12 +5,12 @@ import (
 )
 
 type RestartMsg struct {
-	Height int
 	Width  int
+	Height int
 }
 
-func Restart(height, width int) tea.Cmd {
+func Restart(width, height int) tea.Cmd {
 	return func() tea.Msg {
-		return RestartMsg{Height: height, Width: width}
+		return RestartMsg{Width: width, Height: height}
 	}
 }

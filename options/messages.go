@@ -15,37 +15,37 @@ func Toggle(m *Model) tea.Cmd {
 }
 
 type ChangeKeysMsg struct {
-	Height int
 	Width  int
+	Height int
 	Choice Choice
 }
 
-func ChangeKeys(choice Choice, height, width int) tea.Cmd {
+func ChangeKeys(choice Choice, width, height int) tea.Cmd {
 	return func() tea.Msg {
-		return ChangeKeysMsg{Choice: choice, Height: height, Width: width}
+		return ChangeKeysMsg{Choice: choice, Width: width, Height: height}
 	}
 }
 
 type ChangeDurationMsg struct {
-	Height int
 	Width  int
+	Height int
 	Choice Choice
 }
 
-func ChangeDuration(choice Choice, height, width int) tea.Cmd {
+func ChangeDuration(choice Choice, width, height int) tea.Cmd {
 	return func() tea.Msg {
-		return ChangeDurationMsg{Choice: choice, Height: height, Width: width}
+		return ChangeDurationMsg{Choice: choice, Width: width, Height: height}
 	}
 }
 
 type ShowInputMsg struct {
-	Height int
 	Width  int
+	Height int
 	Choice Choice
 }
 
-func ShowInput(choice Choice, height, width int) tea.Cmd {
+func ShowInput(choice Choice, width, height int) tea.Cmd {
 	return func() tea.Msg {
-		return ShowInputMsg{Choice: choice, Height: height, Width: width}
+		return ShowInputMsg{Choice: choice, Width: width, Height: height}
 	}
 }
