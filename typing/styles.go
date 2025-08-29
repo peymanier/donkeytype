@@ -2,6 +2,13 @@ package typing
 
 import "github.com/charmbracelet/lipgloss"
 
+var (
+	ColorText    = lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: "#dddddd"}
+	ColorSuccess = lipgloss.AdaptiveColor{Light: "#2ECC40", Dark: "#2ECC40"}
+	ColorError   = lipgloss.AdaptiveColor{Light: "#FF6B6B", Dark: "#FF6B6B"}
+	ColorBorder  = lipgloss.AdaptiveColor{Light: "#F793FF", Dark: "#AD58B4"}
+)
+
 type styles struct {
 	headerStyle      lipgloss.Style
 	statStyle        lipgloss.Style
@@ -12,33 +19,28 @@ type styles struct {
 	borderStyle      lipgloss.Style
 }
 
-func (m Model) defaultStyles() *styles {
-	width := m.width * 4 / 5
-
+func defaultStyles() *styles {
 	headerStyle := lipgloss.NewStyle().
-		Width(width).
-		BorderStyle(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("63")).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(ColorBorder).
 		MarginBottom(4)
 
 	statStyle := lipgloss.NewStyle().
-		Width(width * 1 / 4).
 		PaddingLeft(4).
 		PaddingRight(4)
 
 	bodyStyle := lipgloss.NewStyle().
-		Width(width).
-		Border(lipgloss.NormalBorder()).
-		BorderForeground(lipgloss.Color("63")).
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(ColorBorder).
 		MarginBottom(4)
 
 	return &styles{
 		headerStyle:      headerStyle,
 		statStyle:        statStyle,
 		bodyStyle:        bodyStyle,
-		runeNormalStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("7")),
-		runeCorrectStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("10")),
-		runeWrongStyle:   lipgloss.NewStyle().Foreground(lipgloss.Color("9")),
-		borderStyle:      lipgloss.NewStyle().Foreground(lipgloss.Color("63")),
+		runeNormalStyle:  lipgloss.NewStyle().Foreground(ColorText),
+		runeCorrectStyle: lipgloss.NewStyle().Foreground(ColorSuccess),
+		runeWrongStyle:   lipgloss.NewStyle().Foreground(ColorError),
+		borderStyle:      lipgloss.NewStyle().Foreground(ColorBorder),
 	}
 }

@@ -23,8 +23,9 @@ func (m Model) View() string {
 }
 
 func (m Model) viewHeader() string {
-	var headerStyle = m.defaultStyles().headerStyle
-	var statStyle = m.defaultStyles().statStyle
+	availWidth := m.width * 4 / 5
+	var headerStyle = defaultStyles().headerStyle.Width(availWidth)
+	var statStyle = defaultStyles().statStyle.Width(availWidth / 4)
 
 	return headerStyle.Render(
 		lipgloss.JoinHorizontal(
@@ -38,7 +39,8 @@ func (m Model) viewHeader() string {
 }
 
 func (m Model) viewBody() string {
-	bodyStyle := m.defaultStyles().bodyStyle
+	availWidth := m.width * 4 / 5
+	bodyStyle := defaultStyles().bodyStyle.Width(availWidth)
 
 	if m.TypingState == TypingFinish {
 		duration := m.endTime.Sub(*m.startTime)
@@ -55,7 +57,7 @@ func (m Model) viewFooter() string {
 func (m Model) getText() string {
 	var b strings.Builder
 
-	defaultStyles := m.defaultStyles()
+	st := defaultStyles()
 	for i, c := range m.wantedText {
 		var styledChar string
 
@@ -63,12 +65,12 @@ func (m Model) getText() string {
 			m.cursor.SetChar(string(c))
 			styledChar = m.cursor.View()
 		} else if i > len(m.gottenText) {
-			styledChar = defaultStyles.runeNormalStyle.Render(string(c))
+			styledChar = st.runeNormalStyle.Render(string(c))
 		} else {
 			if c == m.gottenText[i] {
-				styledChar = defaultStyles.runeCorrectStyle.Render(string(c))
+				styledChar = st.runeCorrectStyle.Render(string(c))
 			} else {
-				styledChar = defaultStyles.runeWrongStyle.Render(string(c))
+				styledChar = st.runeWrongStyle.Render(string(c))
 			}
 		}
 		b.WriteString(styledChar)
