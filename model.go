@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/charmbracelet/bubbles/timer"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/peymanier/donkeytype/database"
 	"github.com/peymanier/donkeytype/messages"
 	"github.com/peymanier/donkeytype/options"
 	"github.com/peymanier/donkeytype/typing"
@@ -21,10 +22,10 @@ type model struct {
 	options options.Model
 }
 
-func initialModel() model {
+func initialModel(queries *database.Queries) model {
 	return model{
 		typing:  typing.New(typing.Opts{}),
-		options: options.New(),
+		options: options.New(queries),
 	}
 }
 

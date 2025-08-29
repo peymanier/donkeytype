@@ -1,6 +1,8 @@
 package options
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -54,6 +56,7 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 		return m, ShowInput(selectedChoice, m.width, m.height)
 
 	case KeysLeftMiddleRow:
+		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
 		return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
 
 	case DurationDefault:
@@ -63,9 +66,11 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 		return m, ShowInput(selectedChoice, m.width, m.height)
 
 	case Duration15Seconds:
+		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
 		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
 
 	case Duration30Seconds:
+		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
 		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
 
 	default:
@@ -86,6 +91,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
+		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, string(m.selectedOption.selectedChoice.Value.([]rune)))
 		return m, tea.Batch(ChangeKeys(*m.selectedOption.selectedChoice, m.width, m.height), Toggle(&m))
 
 	case DurationCustom:
@@ -101,6 +107,7 @@ func handleCustomChoiceSelect(m Model) (Model, tea.Cmd) {
 		m.selectedOption.input.Reset()
 		m.selectedOption.input.Blur()
 
+		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, fmt.Sprintf("%d", seconds))
 		return m, tea.Batch(ChangeDuration(*m.selectedOption.selectedChoice, m.width, m.height), Toggle(&m))
 
 	default:

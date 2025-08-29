@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/peymanier/donkeytype/database"
 	"github.com/peymanier/donkeytype/text"
 )
 
@@ -41,11 +42,11 @@ var additionalShortHelpKeysFilterApplied = []key.Binding{keys.Select}
 var additionalFullHelpKeys = []key.Binding{keys.Back, keys.Select, keys.ToggleOptions, keys.Quit}
 var additionalFullHelpKeysFilterApplied = []key.Binding{keys.Select, keys.ToggleOptions, keys.Quit}
 
-type id int
+type id string
 
 const (
-	keysID id = iota
-	durationID
+	keysID     id = "keys"
+	durationID id = "duration"
 )
 
 type option struct {
@@ -62,17 +63,17 @@ func (i option) Title() string       { return i.title }
 func (i option) Description() string { return i.description }
 func (i option) FilterValue() string { return i.title }
 
-type ChoiceID int
+type ChoiceID string
 
 const (
-	KeysDefault ChoiceID = iota
-	KeysCustom
-	KeysLeftMiddleRow
+	KeysDefault       ChoiceID = "keys-default"
+	KeysCustom        ChoiceID = "keys-custom"
+	KeysLeftMiddleRow ChoiceID = "keys-left-middle-row"
 
-	DurationDefault
-	DurationCustom
-	Duration15Seconds
-	Duration30Seconds
+	DurationDefault   ChoiceID = "duration-default"
+	DurationCustom    ChoiceID = "duration-custom"
+	Duration15Seconds ChoiceID = "duration-15-seconds"
+	Duration30Seconds ChoiceID = "duration-30-seconds"
 )
 
 type Choice struct {
@@ -92,6 +93,7 @@ func (c Choice) Description() string { return c.description }
 func (c Choice) FilterValue() string { return c.title }
 
 type Model struct {
+	queries        *database.Queries
 	list           list.Model
 	options        []option
 	selectedOption *option
@@ -142,11 +144,12 @@ func newOptionList(items []list.Item) list.Model {
 var SelectedKeys = defaultKeys
 var SelectedDuration = defaultDuration
 
-func New() Model {
+func New(queries *database.Queries) Model {
 	items := setupOptionItems()
 	l := newOptionList(items)
 
 	return Model{
+		queries: queries,
 		list:    l,
 		options: options,
 		keys:    keys,
