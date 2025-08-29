@@ -86,18 +86,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func setupOptionList() []list.Item {
+func setupOptionItems() []list.Item {
 	delegate := list.NewDefaultDelegate()
 
-	items := make([]list.Item, len(options))
+	optionItems := make([]list.Item, len(options))
 	for i, opt := range options {
-		choiceItem := make([]list.Item, len(opt.choices))
+		choiceItems := make([]list.Item, len(opt.choices))
 		for j, choice := range opt.choices {
-			choiceItem[j] = choice
+			choiceItems[j] = choice
 		}
 
-		l := list.New(choiceItem, delegate, 0, 0)
-		l.Title = "Option Choices"
+		l := list.New(choiceItems, delegate, 0, 0)
+		l.Title = "Choices"
 		l.DisableQuitKeybindings()
 		l.AdditionalShortHelpKeys = func() []key.Binding {
 			if l.FilterState() == list.FilterApplied {
@@ -113,8 +113,8 @@ func setupOptionList() []list.Item {
 		}
 
 		opt.list = l
-		items[i] = opt
+		optionItems[i] = opt
 	}
 
-	return items
+	return optionItems
 }

@@ -143,11 +143,11 @@ var SelectedKeys = defaultKeys
 var SelectedDuration = defaultDuration
 
 func New() Model {
-	items := setupOptionList()
-	list := newOptionList(items)
+	items := setupOptionItems()
+	l := newOptionList(items)
 
 	return Model{
-		list:    list,
+		list:    l,
 		options: options,
 		keys:    keys,
 	}
