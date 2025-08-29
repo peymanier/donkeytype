@@ -19,7 +19,7 @@ type styles struct {
 	borderStyle      lipgloss.Style
 }
 
-func defaultStyles() *styles {
+func newDefaultStyles() *styles {
 	headerStyle := lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(ColorBorder).
