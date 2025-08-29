@@ -40,20 +40,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		newTyping, _ := m.typing.Update(msg)
-		typing, ok := newTyping.(typing.Model)
+		typ, ok := newTyping.(typing.Model)
 		if !ok {
 			panic("could not perform type assertion on typing model")
 		}
 
-		m.typing = typing
+		m.typing = typ
 
 		newOptions, _ := m.options.Update(msg)
-		options, ok := newOptions.(options.Model)
+		opt, ok := newOptions.(options.Model)
 		if !ok {
 			panic("could not perform type assertion on options model")
 		}
 
-		m.options = options
+		m.options = opt
 		return m, nil
 
 	case timer.TickMsg:
@@ -62,12 +62,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		newTyping, newCmd := m.typing.Update(msg)
-		typing, ok := newTyping.(typing.Model)
+		typ, ok := newTyping.(typing.Model)
 		if !ok {
 			panic("could not perform type assertion on typing model")
 		}
 
-		m.typing = typing
+		m.typing = typ
 		cmd = newCmd
 		return m, cmd
 
@@ -98,23 +98,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.state {
 	case typingView:
 		newTyping, newCmd := m.typing.Update(msg)
-		typing, ok := newTyping.(typing.Model)
+		typ, ok := newTyping.(typing.Model)
 		if !ok {
 			panic("could not perform type assertion on typing model")
 		}
 
-		m.typing = typing
+		m.typing = typ
 		cmd = newCmd
 		cmds = append(cmds, cmd)
 
 	case optionsView:
 		newOptions, newCmd := m.options.Update(msg)
-		options, ok := newOptions.(options.Model)
+		opt, ok := newOptions.(options.Model)
 		if !ok {
 			panic("could not perform type assertion on options model")
 		}
 
-		m.options = options
+		m.options = opt
 		cmd = newCmd
 		cmds = append(cmds, cmd)
 	}
