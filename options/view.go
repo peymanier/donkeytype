@@ -8,7 +8,7 @@ func (m Model) View() string {
 		availHeight = m.height - 8
 	)
 
-	styles := defaultStyles()
+	st := defaultStyles()
 
 	if m.selectedOption != nil {
 		if m.selectedOption.input.Focused() {
@@ -20,7 +20,7 @@ func (m Model) View() string {
 
 		choiceList := m.selectedOption.list
 		helpView := choiceList.Help.View(choiceList)
-		helpView = styles.helpStyle.Render(helpView)
+		helpView = st.helpStyle.Render(helpView)
 		helpHeight := lipgloss.Height(helpView)
 
 		m.list.SetSize(availWidth, availHeight-helpHeight)
@@ -30,8 +30,8 @@ func (m Model) View() string {
 
 		sideBySideLists := lipgloss.JoinHorizontal(
 			lipgloss.Top,
-			styles.leftListstyle.Render(m.list.View()),
-			styles.rightListStyle.Render(m.selectedOption.list.View()),
+			st.leftListstyle.Render(m.list.View()),
+			st.rightListStyle.Render(m.selectedOption.list.View()),
 		)
 
 		return lipgloss.JoinVertical(
@@ -45,14 +45,14 @@ func (m Model) View() string {
 
 	optionList := m.list
 	helpView := optionList.Help.View(optionList)
-	helpView = styles.helpStyle.Render(helpView)
+	helpView = st.helpStyle.Render(helpView)
 	helpHeight := lipgloss.Height(helpView)
 
 	m.list.SetSize(availWidth, availHeight-helpHeight)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		styles.listStyle.Render(m.list.View()),
+		st.listStyle.Render(m.list.View()),
 		helpView,
 	)
 }
