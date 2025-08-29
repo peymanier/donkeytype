@@ -9,7 +9,7 @@ type styles struct {
 	helpStyle      lipgloss.Style
 }
 
-func (m Model) defaultStyles() *styles {
+func defaultStyles() *styles {
 	listStyle := lipgloss.NewStyle().
 		Padding(4)
 

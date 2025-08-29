@@ -8,14 +8,16 @@ func (m Model) View() string {
 		availHeight = m.height - 8
 	)
 
+	styles := defaultStyles()
+
 	if m.selectedOption != nil {
 		if m.selectedOption.input.Focused() {
 			return m.selectedOption.input.View()
 		}
 
-		leftListStyle := m.defaultStyles().leftListstyle
-		rightListStyle := m.defaultStyles().rightListStyle
-		helpStyle := m.defaultStyles().helpStyle
+		leftListStyle := styles.leftListstyle
+		rightListStyle := styles.rightListStyle
+		helpStyle := styles.helpStyle
 
 		m.list.SetShowHelp(false)
 		m.selectedOption.list.SetShowHelp(false)
@@ -45,6 +47,6 @@ func (m Model) View() string {
 
 	m.list.SetSize(availWidth, availHeight)
 
-	listStyle := m.defaultStyles().listStyle
+	listStyle := styles.listStyle
 	return listStyle.Render(m.list.View())
 }
