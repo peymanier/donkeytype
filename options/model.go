@@ -2,6 +2,7 @@ package options
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -147,37 +148,68 @@ func newOptionList(items []list.Item) list.Model {
 var SelectedKeys = defaultKeys
 var SelectedDuration = defaultDuration
 
+func findMatchingOption(dbOption database.Option) *option {
+	for _, opt := range options {
+		if string(opt.id) == dbOption.ID {
+			return &opt
+		}
+	}
+
+	return nil
+}
+
+func findMatchingChoice(dbOption database.Option, matchedOpt option) *Choice {
+	for _, choice := range matchedOpt.choices {
+		if string(choice.ID) == dbOption.ChoiceID {
+			return &choice
+		}
+	}
+
+	return nil
+}
+
+func loadDBOptions(dbOptions []database.Option) {
+	for _, dbOpt := range dbOptions {
+		opt := findMatchingOption(dbOpt)
+		if opt == nil {
+			panic("badly configured")
+		}
+
+		choice := findMatchingChoice(dbOpt, *opt)
+		if choice == nil {
+			panic("badly configured")
+		}
+
+		if dbOpt.ID == string(keysID) {
+			if choice.ID == KeysCustom {
+				choice.Value = []rune(dbOpt.Value)
+			}
+			SelectedKeys = *choice
+
+		} else if dbOpt.ID == string(durationID) {
+			if choice.ID == DurationCustom {
+				seconds, err := strconv.Atoi(dbOpt.Value)
+				if err != nil {
+					panic(fmt.Sprintf("couldn't convert duration err: %v", err))
+				}
+				choice.Value = time.Duration(seconds) * time.Second
+			}
+			SelectedDuration = *choice
+
+		} else {
+			panic("badly configured")
+		}
+
+	}
+}
+
 func New(queries *database.Queries) Model {
 	dbOptions, err := queries.ListOptions(context.Background())
 	if err != nil {
 		log.Printf("couldn't retrieve choices err: %v", err)
 	}
 
-	// Todo: Must change
-	for _, dbOpt := range dbOptions {
-		for _, opt := range options {
-			if string(opt.id) == dbOpt.ID {
-				for _, choice := range opt.choices {
-					if string(choice.ID) == dbOpt.ChoiceID {
-						if dbOpt.ID == string(keysID) {
-							if choice.ID == KeysCustom {
-								choice.Value = []rune(dbOpt.Value)
-							}
-							SelectedKeys = choice
-						} else if dbOpt.ID == string(durationID) {
-							if choice.ID == DurationCustom {
-								seconds, _ := strconv.Atoi(dbOpt.Value)
-								choice.Value = time.Duration(seconds) * time.Second
-							}
-							SelectedDuration = choice
-						} else {
-							log.Println("I don't know")
-						}
-					}
-				}
-			}
-		}
-	}
+	loadDBOptions(dbOptions)
 
 	items := setupOptionItems()
 	l := newOptionList(items)
