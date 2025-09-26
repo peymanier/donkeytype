@@ -100,10 +100,10 @@ type Opts struct {
 
 func New(opts Opts) Model {
 	duration := options.SelectedDuration.Value.(time.Duration)
-	timer := timer.NewWithInterval(duration, 100*time.Millisecond)
+	tmr := timer.NewWithInterval(duration, 100*time.Millisecond)
 
-	cursor := cursor.New()
-	cursor.Focus()
+	cur := cursor.New()
+	cur.Focus()
 
 	selectedChoice := options.SelectedKeys
 
@@ -130,11 +130,11 @@ func New(opts Opts) Model {
 		width:       opts.Width,
 		height:      opts.Height,
 		timeData: timeData{
-			timer:      timer,
+			timer:      tmr,
 			timerState: timerStop,
 		},
 		cursorData: cursorData{
-			cursor: cursor,
+			cursor: cur,
 		},
 		keys: keys,
 		help: help.New(),
