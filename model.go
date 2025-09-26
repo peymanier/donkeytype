@@ -23,14 +23,21 @@ type model struct {
 }
 
 func initialModel(queries *database.Queries) model {
+	// `optModel` must come first to load db options
+	optModel := options.New(queries)
+	typModel := typing.New(typing.Opts{})
+
 	return model{
-		typing:  typing.New(typing.Opts{}),
-		options: options.New(queries),
+		state:   typingView,
+		typing:  typModel,
+		options: optModel,
 	}
 }
 
 func (m model) Init() tea.Cmd {
-	return nil
+	typCmd := m.typing.Init()
+	optCmd := m.options.Init()
+	return tea.Batch(typCmd, optCmd)
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

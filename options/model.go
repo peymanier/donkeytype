@@ -1,6 +1,9 @@
 package options
 
 import (
+	"context"
+	"log"
+	"strconv"
 	"time"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -113,7 +116,7 @@ var options = []option{
 	}},
 	{id: durationID, title: "Change Duration", choices: []Choice{
 		defaultDuration,
-		{ID: DurationCustom, title: "Custom", Value: 1 * time.Second},
+		{ID: DurationCustom, title: "Custom", Value: 0 * time.Second},
 		{ID: Duration15Seconds, title: "15 Seconds", Value: 15 * time.Second},
 		{ID: Duration30Seconds, title: "30 Seconds", Value: 30 * time.Second},
 	}},
@@ -145,6 +148,37 @@ var SelectedKeys = defaultKeys
 var SelectedDuration = defaultDuration
 
 func New(queries *database.Queries) Model {
+	dbOptions, err := queries.ListOptions(context.Background())
+	if err != nil {
+		log.Printf("couldn't retrieve choices err: %v", err)
+	}
+
+	// Todo: Must change
+	for _, dbOpt := range dbOptions {
+		for _, opt := range options {
+			if string(opt.id) == dbOpt.ID {
+				for _, choice := range opt.choices {
+					if string(choice.ID) == dbOpt.ChoiceID {
+						if dbOpt.ID == string(keysID) {
+							if choice.ID == KeysCustom {
+								choice.Value = []rune(dbOpt.Value)
+							}
+							SelectedKeys = choice
+						} else if dbOpt.ID == string(durationID) {
+							if choice.ID == DurationCustom {
+								seconds, _ := strconv.Atoi(dbOpt.Value)
+								choice.Value = time.Duration(seconds) * time.Second
+							}
+							SelectedDuration = choice
+						} else {
+							log.Println("I don't know")
+						}
+					}
+				}
+			}
+		}
+	}
+
 	items := setupOptionItems()
 	l := newOptionList(items)
 
