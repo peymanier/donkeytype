@@ -70,9 +70,23 @@ func (i option) FilterValue() string { return i.title }
 type ChoiceID string
 
 const (
-	KeysDefault       ChoiceID = "keys-default"
-	KeysCustom        ChoiceID = "keys-custom"
-	KeysLeftMiddleRow ChoiceID = "keys-left-middle-row"
+	KeysDefault                ChoiceID = "keys-default"
+	KeysCustom                 ChoiceID = "keys-custom"
+	KeysLeftMiddleRow          ChoiceID = "keys-left-middle-row"
+	KeysRightMiddleRow         ChoiceID = "keys-right-middle-row"
+	KeysMiddleRow              ChoiceID = "keys-middle-row"
+	KeysMiddleRowPlusGH        ChoiceID = "keys-middle-row-plus-gh"
+	KeysMiddleRowFull          ChoiceID = "keys-middle-row-full"
+	KeysMiddleRowFullPlusShift ChoiceID = "keys-middle-row-full-plus-shift"
+	KeysLeftTopRow             ChoiceID = "keys-left-top-row"
+	KeysRightTopRow            ChoiceID = "keys-right-top-row"
+	KeysLeftBottomRow          ChoiceID = "keys-left-bottom-row"
+	KeysRightBottomRow         ChoiceID = "keys-right-bottom-row"
+	KeysLeftNumbersRow         ChoiceID = "keys-left-numbers-row"
+	KeysRightNumbersRow        ChoiceID = "keys-right-numbers-row"
+	KeysNumbersRowPlusSymbols  ChoiceID = "keys-numbers-row-plus-symbols"
+	KeysSymbolsInLetters       ChoiceID = "keys-symbols-in-letters"
+	KeysFullKeyboard           ChoiceID = "keys-full-keyboard"
 
 	DurationDefault    ChoiceID = "duration-default"
 	DurationCustom     ChoiceID = "duration-custom"
@@ -116,6 +130,20 @@ var options = []option{
 		defaultKeys,
 		{ID: KeysCustom, title: "Custom", Value: make([]rune, 0)},
 		{ID: KeysLeftMiddleRow, title: "Left Hand Middle Row", Value: []rune("asdf")},
+		{ID: KeysRightMiddleRow, title: "Right Hand Middle Row", Value: []rune("jkl;")},
+		{ID: KeysMiddleRow, title: "Middle Row", Value: []rune("asdfjkl;")},
+		{ID: KeysMiddleRowPlusGH, title: "Middle Row + G H", Value: []rune("asdfjkl;gh")},
+		{ID: KeysMiddleRowFull, title: "Middle Row Full", Value: []rune("asdfghjkl;,")},
+		{ID: KeysMiddleRowFullPlusShift, title: "Middle Row Full + Shift", Value: []rune("asdfghjkl;,ASDFGHJKL:\"")},
+		{ID: KeysLeftTopRow, title: "Left Hand Top Row", Value: []rune("qwert")},
+		{ID: KeysRightTopRow, title: "Right Hand Top Row", Value: []rune("yuiop")},
+		{ID: KeysLeftBottomRow, title: "Left Hand Bottom Row", Value: []rune("zxcvb")},
+		{ID: KeysRightBottomRow, title: "Right Hand Bottom Row", Value: []rune("nm,./")},
+		{ID: KeysLeftNumbersRow, title: "Left Hand Numbers Row", Value: []rune("12345")},
+		{ID: KeysRightNumbersRow, title: "Right Hand Numbers Row", Value: []rune("67890")},
+		{ID: KeysNumbersRowPlusSymbols, title: "Numbers Row + Symbols", Value: []rune("1234567890!@#$%^&*()-=_+")},
+		{ID: KeysSymbolsInLetters, title: "Symbols in Letters", Value: []rune("{}[]<>,./?|\\")},
+		{ID: KeysFullKeyboard, title: "Full Keyboard", Value: []rune("1234567890-=!@#$%^&*()_+qwertyuiop[]\\{}|asdfghjkl;':\"zxcvbnm,./<>?`~")},
 	}},
 	{id: durationID, title: "Change Duration", choices: []Choice{
 		defaultDuration,
