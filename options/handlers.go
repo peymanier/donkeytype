@@ -48,33 +48,35 @@ func handleSelectChoice(m Model) (Model, tea.Cmd) {
 
 	m.selectedOption.selectedChoice = &selectedChoice
 
-	switch selectedChoice.ID {
-	case KeysDefault:
-		return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
+	switch m.selectedOption.id {
+	case keysID:
+		switch selectedChoice.ID {
+		case KeysDefault:
+			return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
 
-	case KeysCustom:
-		return m, ShowInput(selectedChoice, m.width, m.height)
+		case KeysCustom:
+			return m, ShowInput(selectedChoice, m.width, m.height)
 
-	case KeysLeftMiddleRow:
-		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
-		return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
+		default:
+			m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
+			return m, tea.Batch(ChangeKeys(selectedChoice, m.width, m.height), Toggle(&m))
+		}
 
-	case DurationDefault:
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
+	case durationID:
+		switch selectedChoice.ID {
+		case DurationDefault:
+			return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
 
-	case DurationCustom:
-		return m, ShowInput(selectedChoice, m.width, m.height)
+		case DurationCustom:
+			return m, ShowInput(selectedChoice, m.width, m.height)
 
-	case Duration15Seconds:
-		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
-
-	case Duration30Seconds:
-		m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
-		return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
+		default:
+			m.addOption(context.Background(), m.selectedOption.id, m.selectedOption.selectedChoice.ID, "")
+			return m, tea.Batch(ChangeDuration(selectedChoice, m.width, m.height), Toggle(&m))
+		}
 
 	default:
-		log.Println("unexpected choice id:", selectedChoice.ID)
+		log.Println("unexpected option id:", m.selectedOption.id)
 	}
 
 	return m, cmd
