@@ -22,10 +22,8 @@ func handleSelectOption(m Model) (Model, tea.Cmd) {
 	switch selectedOption.id {
 	case keysID:
 		m.selectedOption = &selectedOption
-		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
 	case durationID:
 		m.selectedOption = &selectedOption
-		m.selectedOption.list.SetSize(m.width*4/5, m.height*4/5)
 	default:
 		log.Println("invalid option")
 	}
