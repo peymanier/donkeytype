@@ -74,10 +74,12 @@ const (
 	KeysCustom        ChoiceID = "keys-custom"
 	KeysLeftMiddleRow ChoiceID = "keys-left-middle-row"
 
-	DurationDefault   ChoiceID = "duration-default"
-	DurationCustom    ChoiceID = "duration-custom"
-	Duration15Seconds ChoiceID = "duration-15-seconds"
-	Duration30Seconds ChoiceID = "duration-30-seconds"
+	DurationDefault    ChoiceID = "duration-default"
+	DurationCustom     ChoiceID = "duration-custom"
+	Duration15Seconds  ChoiceID = "duration-15-seconds"
+	Duration30Seconds  ChoiceID = "duration-30-seconds"
+	Duration60Seconds  ChoiceID = "duration-60-seconds"
+	Duration120Seconds ChoiceID = "duration-120-seconds"
 )
 
 type Choice struct {
@@ -120,6 +122,8 @@ var options = []option{
 		{ID: DurationCustom, title: "Custom", Value: 0 * time.Second},
 		{ID: Duration15Seconds, title: "15 Seconds", Value: 15 * time.Second},
 		{ID: Duration30Seconds, title: "30 Seconds", Value: 30 * time.Second},
+		{ID: Duration60Seconds, title: "60 Seconds", Value: 60 * time.Second},
+		{ID: Duration120Seconds, title: "120 Seconds", Value: 120 * time.Second},
 	}},
 }
 
